@@ -5,7 +5,6 @@
 #include <unistd.h>
 
 void timeSysCall(int numCalls); // Function prototype
-// Place any necessary global variables here
 
 int main(int argc, char *argv[]){
 
@@ -22,11 +21,11 @@ void timeSysCall(int numCalls) {
 		getpid();
 	}
 	gettimeofday(&end, NULL);
-	
+
 	long seconds = (end.tv_sec - start.tv_sec);
 	long micros = ((seconds * 1000000) + end.tv_usec) - (start.tv_usec);
 	double avg = micros / ((double) numCalls);
-	
+
 	printf("Syscalls performed: %d\n", numCalls);
 	printf("Total Elapsed Time: %ld microseconds\n", micros);
 	printf("Average Time Per Syscall: %f microseconds\n", avg);
