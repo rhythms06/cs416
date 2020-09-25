@@ -32,9 +32,8 @@ int main(int argc, char *argv[]) {
 
 	int x = 5;
 	int y = 0;
-	int z = 0;
 
 	gettimeofday(&start, NULL); // start timer
-	z = x / y; // invoke SIGFPE
+	y = x / y; // invoke SIGFPE
 	return 0;
 }
