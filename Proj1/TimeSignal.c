@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/time.h>
+#include <signal.h>
 
 int numExceptions = 0;
 int maxExceptions = 100000;
