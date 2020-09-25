@@ -26,7 +26,7 @@ void timeSysCall(int numCalls) {
 	long micros = ((seconds * 1000000) + end.tv_usec) - (start.tv_usec);
 	double avg = micros / ((double) numCalls);
 
-	printf("Syscalls performed: %d\n", numCalls);
+	printf("Syscalls Performed: %d\n", numCalls);
 	printf("Total Elapsed Time: %ld microseconds\n", micros);
 	printf("Average Time Per Syscall: %f microseconds\n", avg);
 }

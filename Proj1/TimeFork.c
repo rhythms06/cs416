@@ -30,7 +30,7 @@ void timeFork(int numCalls) {
 	long micros = ((seconds * 1000000) + end.tv_usec) - (start.tv_usec);
 	double avg = micros / ((double) numCalls);
 
-	printf("Forks performed: %d\n", numCalls);
+	printf("Forks Performed: %d\n", numCalls);
 	printf("Total Elapsed Time: %ld microseconds\n", micros);
 	printf("Average Time Per Fork: %f microseconds\n", avg);
 }
