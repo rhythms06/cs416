@@ -18,18 +18,15 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ucontext.h>
+#include <sys/ucontext.h>
 
 #define QUANTUM 10
 typedef uint mypthread_t;
 
 typedef struct threadControlBlock {
-	/* add important states in a thread control block */
-	// thread Id
 	mypthread_t id;
 	// thread status
-	// thread context
-	// thread stack
+	ucontext_t context;
 	void *stack;
 	// thread priority
 	// And more ...

@@ -13,8 +13,13 @@
 /* create a new thread */
 int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
                       void *(*function)(void*), void * arg) {
-       // create Thread Control Block
-       // create and initialize the context of this thread
+       tcb controlBlock;
+       ucontext_t context;
+       char stack[16384];
+       context.uc_stack.ss_sp = stack; // the base of the new stack
+       context.uc_stack.ss_size = sizeof(stack); // the size of the new stack
+       context.uc_link = NULL; // the successor stack
+       controlBlock.context = makecontext(&context, function, 1);
        // allocate space of stack for this thread to run
        // after everything is all set, push this thread int
        // YOUR CODE HERE
