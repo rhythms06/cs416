@@ -6,21 +6,21 @@
 
 #include "mypthread.h"
 
-// INITAILIZE ALL YOUR VARIABLES HERE
-// YOUR CODE HERE
+// VARIABLES
+#define STACK_SIZE SIGSTKSZ
 
 
 /* create a new thread */
 int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
                       void *(*function)(void*), void * arg) {
-       tcb controlBlock;
-       ucontext_t context;
-       char stack[16384];
+       tcb controlBlock; // a new thread control block
+       ucontext_t context; // a new thread context
+       void *stack = malloc(STACK_SIZE); // allocate stack space
        context.uc_stack.ss_sp = stack; // the base of the new stack
-       context.uc_stack.ss_size = sizeof(stack); // the size of the new stack
+       context.uc_stack.ss_size = STACK_SIZE; // the size of the new stack
        context.uc_link = NULL; // the successor stack
+       context.uc_stack.ss_flags = 0;
        controlBlock.context = makecontext(&context, function, 1);
-       // allocate space of stack for this thread to run
        // after everything is all set, push this thread int
        // YOUR CODE HERE
 
