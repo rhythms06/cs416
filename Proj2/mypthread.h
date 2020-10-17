@@ -18,8 +18,9 @@
 #include <sys/types.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/ucontext.h>
-
+#include <signal.h>
+#include <ucontext.h>
+#define STACK_SIZE SIGSTKSZ
 #define QUANTUM 10
 typedef uint mypthread_t;
 
@@ -43,9 +44,16 @@ typedef struct mypthread_mutex_t {
 
 /* define your data structures here: */
 // Feel free to add your own auxiliary data structures (linked list or queue etc...)
+typedef struct tcb_node {
+	tcb* data;
+	struct tcb_node* next;
+} tcb_node;
 
-// YOUR CODE HERE
-
+typedef struct tcb_queue {
+	tcb_node* front;
+	tcb_node* back;
+	int size;
+} tcb_queue;
 
 /* Function Declarations: */
 
@@ -74,6 +82,10 @@ int mypthread_mutex_unlock(mypthread_mutex_t *mutex);
 
 /* destroy the mutex */
 int mypthread_mutex_destroy(mypthread_mutex_t *mutex);
+
+/* QUEUE FUNCTIONS */
+void add_to_back(tcb_queue* queue, tcb* new_tcb);
+void print_queue(tcb_queue* queue);
 
 #ifdef USE_MYTHREAD
 #define pthread_t mypthread_t

@@ -7,7 +7,7 @@
 #include "mypthread.h"
 
 // VARIABLES
-#define STACK_SIZE SIGSTKSZ
+
 
 
 /* create a new thread */
@@ -20,7 +20,8 @@ int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
        context.uc_stack.ss_size = STACK_SIZE; // the size of the new stack
        context.uc_link = NULL; // the successor stack
        context.uc_stack.ss_flags = 0;
-       controlBlock.context = makecontext(&context, function, 1);
+	   makecontext(&context, *function, 1);
+       controlBlock.context = context;
        // after everything is all set, push this thread int
        // YOUR CODE HERE
 
@@ -138,3 +139,6 @@ static void sched_mlfq() {
 // Feel free to add any other functions you need
 
 // YOUR CODE HERE
+void add_to_front(tcb_node** front, tcb* new_tcb) {
+
+}
