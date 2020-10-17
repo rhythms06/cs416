@@ -47,6 +47,7 @@ typedef struct mypthread_mutex_t {
 typedef struct tcb_node {
 	tcb* data;
 	struct tcb_node* next;
+	struct tcb_node* prev;
 } tcb_node;
 
 typedef struct tcb_queue {

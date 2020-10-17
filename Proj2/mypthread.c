@@ -139,6 +139,8 @@ static void sched_mlfq() {
 // Feel free to add any other functions you need
 
 // YOUR CODE HERE
+
+/*** QUEUE FUNCTIONS ***/
 void initialize_queue(tcb_queue* queue) {
 	queue->front = NULL;
 	queue->back = NULL;
@@ -149,6 +151,7 @@ void add_to_front(tcb_queue* queue, tcb* new_tcb) {
 	tcb_node* new_tcb_node = (tcb_node*) malloc(sizeof(tcb_node));
 	new_tcb_node->data = new_tcb;
 	new_tcb_node->next = queue->front;
+	new_tcb_node->prev = NULL;
 
 	if (queue->front == NULL) { // if queue is empty
 		queue->front = new_tcb_node;
@@ -156,11 +159,25 @@ void add_to_front(tcb_queue* queue, tcb* new_tcb) {
 		return;
 	}
 
-	
+	queue->front->prev = new_tcb_node;
 	queue->front = new_tcb_node;
 
 	return;
 
+}
+tcb* pop_from_back(tcb_queue* queue) {
+	if (queue->back == NULL) { // Queue is empty
+		return NULL;
+	}
+	if (queue->back == queue->front) { // if only one in queue
+		queue->front = NULL;
+	} else { // if 2 or more in queue, we need to correct the value of next
+		queue->back->prev->next = NULL;
+	}
+	tcb_node* popped = queue->back;
+	queue->back = popped->prev;
+
+	return popped;
 }
 void print_queue(tcb_queue* queue) {
 	tcb_node* ptr = queue->front;
