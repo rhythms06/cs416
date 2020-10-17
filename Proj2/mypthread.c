@@ -139,6 +139,34 @@ static void sched_mlfq() {
 // Feel free to add any other functions you need
 
 // YOUR CODE HERE
-void add_to_front(tcb_node** front, tcb* new_tcb) {
+void initialize_queue(tcb_queue* queue) {
+	queue->front = NULL;
+	queue->back = NULL;
+	queue->size = 0;
+}
+void add_to_front(tcb_queue* queue, tcb* new_tcb) {
+	printf("adding to front!\n");
+	tcb_node* new_tcb_node = (tcb_node*) malloc(sizeof(tcb_node));
+	new_tcb_node->data = new_tcb;
+	new_tcb_node->next = queue->front;
 
+	if (queue->front == NULL) { // if queue is empty
+		queue->front = new_tcb_node;
+		queue->back = new_tcb_node;
+		return;
+	}
+
+	
+	queue->front = new_tcb_node;
+
+	return;
+
+}
+void print_queue(tcb_queue* queue) {
+	tcb_node* ptr = queue->front;
+	while(ptr != NULL) {
+		printf("%u\n", ptr->data->id);
+		ptr = ptr->next;
+	}
+	return;
 }

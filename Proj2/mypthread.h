@@ -84,7 +84,9 @@ int mypthread_mutex_unlock(mypthread_mutex_t *mutex);
 int mypthread_mutex_destroy(mypthread_mutex_t *mutex);
 
 /* QUEUE FUNCTIONS */
-void add_to_back(tcb_queue* queue, tcb* new_tcb);
+void initialize_queue(tcb_queue* queue);
+void add_to_front(tcb_queue* queue, tcb* new_tcb);
+tcb* pop_from_back(tcb_queue*);
 void print_queue(tcb_queue* queue);
 
 #ifdef USE_MYTHREAD
