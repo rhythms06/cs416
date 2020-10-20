@@ -16,6 +16,12 @@
 bool firstThreadFlag = true;
 tcb_queue* runqueue;
 mypthread_t currentThread;
+ucontext_t scheduler_context;
+ucontext_t main_thread_context;
+
+// Timer global vars
+struct sigaction sa;
+struct itimerval timer;
 
 /* create a new thread (you can ignore attr) */
 int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
@@ -70,6 +76,7 @@ void initialize() {
   runqueue = (tcb_queue*) malloc(sizeof(tcb_queue));
   initialize_queue(runqueue);
 
+  /** ANNOYING OVERHEAD FOR CREATING A CONTEXT **/
   // TODO: Create Scheduler context
   ucontext_t context; // a new thread context
   ucontext_t *cp = &context; // a context pointer
@@ -96,6 +103,7 @@ void initialize() {
   // Try applying our modifications
   errno = 0;
   makecontext(&context, &schedule, 1, arg);
+  /** ANNOYING OVERHEAD FOR CREATING A CONTEXT **/
 }
 
 /* give CPU possession to other user-level threads voluntarily */
@@ -138,8 +146,12 @@ void mypthread_exit(void *value_ptr) {
 int mypthread_join(mypthread_t thread, void **value_ptr) {
 
 	// wait for a specific thread to terminate
+  while (thread.status != terminated) {
+    
+  }
 	// de-allocate any dynamic memory created by the joining thread
-
+  // SEARCH THE THREAD IN THE QUEUE? DEALLOCATE THAT?
+  // make sure to return the return value of the exiting thread in value_ptr if not null
 	// YOUR CODE HERE
 	return 0;
 };
@@ -183,6 +195,31 @@ int mypthread_mutex_destroy(mypthread_mutex_t *mutex) {
 };
 
 /* scheduler */
+
+void switch_to_scheduler(int signum){
+
+  swapcontext(&main_thread_context, scheduler_context);
+}
+
+void initialize_timer(){
+  memset (&sa, 0, sizeof (sa));
+	sa.sa_handler = &switch_to_scheduler;
+	sigaction (SIGPROF, &sa, NULL);
+
+  timer.it_interval.tv_usec = 0; 
+	timer.it_interval.tv_sec = 2;
+
+	// Set up the current timer to go off in 1 second
+	// Note: if both of the following values are zero
+	//       the timer will not be active, and the timer
+	//       will never go off even if you set the interval value
+	timer.it_value.tv_usec = 0;
+	timer.it_value.tv_sec = 1;
+
+	// Set the timer up (start the timer)
+	setitimer(ITIMER_PROF, &timer, NULL);
+}
+
 static void schedule() {
 	// Every time when timer interrup happens, your thread library
 	// should be contexted switched from thread context to this
@@ -201,6 +238,7 @@ static void schedule() {
 // schedule policy
 #ifndef MLFQ
 	// Choose STCF
+  sched_stcf();
 #else
 	// Choose MLFQ
 #endif

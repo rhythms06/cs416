@@ -34,6 +34,7 @@ typedef struct threadControlBlock {
 	enum state state;
 	ucontext_t context;
 	// thread priority
+	int counter;
 	// And more ...
 
 	// YOUR CODE HERE
@@ -90,6 +91,10 @@ int mypthread_mutex_unlock(mypthread_mutex_t *mutex);
 
 /* destroy the mutex */
 int mypthread_mutex_destroy(mypthread_mutex_t *mutex);
+
+/* SCHEDULER FUNCTIONS */
+void switch_to_scheduler(int signum);
+void initialize_timer();
 
 /* QUEUE FUNCTIONS */
 void initialize_queue(tcb_queue* queue);
