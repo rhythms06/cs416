@@ -22,6 +22,7 @@
 #include <sys/time.h>
 #include <ucontext.h>
 #include <stdbool.h> 
+#include <limits.h>
 #define STACK_SIZE SIGSTKSZ
 #define QUANTUM 10
 typedef unsigned int mypthread_t;
@@ -104,6 +105,7 @@ void add_to_front(tcb_queue* queue, tcb* new_tcb);
 tcb* pop_from_back(tcb_queue*);
 void print_queue(tcb_queue* queue);
 tcb* find_tcb_by_id(mypthread_t id);
+void move_min_to_back();
 
 #ifdef USE_MYTHREAD
 #define pthread_t mypthread_t
