@@ -24,9 +24,12 @@
 #define QUANTUM 10
 typedef unsigned int mypthread_t;
 
+enum state{RUNNING, READY, WAITING, START, DONE};
+
 typedef struct threadControlBlock {
 	mypthread_t id;
 	// thread state (running, ready, waiting, start, done)
+	enum state state;
 	ucontext_t context;
 	// thread priority
 	// And more ...
