@@ -69,6 +69,33 @@ void initialize() {
   firstThreadFlag = false;
   runqueue = (tcb_queue*) malloc(sizeof(tcb_queue));
   initialize_queue(runqueue);
+
+  // TODO: Create Scheduler context
+  ucontext_t context; // a new thread context
+  ucontext_t *cp = &context; // a context pointer
+
+  // Try to initialize context
+  if (getcontext(cp) < 0) {
+    perror("getcontext() reported an error");
+    exit(1);
+  }
+
+  // Try allocating the context's stack
+  void *stack = malloc(STACK_SIZE);
+  if (stack == NULL) {
+    perror("Could not allocated a new stack");
+    exit(1);
+  }
+
+  // Modify the context
+  context.uc_link = NULL; // assign the successor context
+  context.uc_stack.ss_sp = stack; // assign the context's stack
+  context.uc_stack.ss_size = STACK_SIZE; // the size of the new stack
+  context.uc_stack.ss_flags = 0;
+
+  // Try applying our modifications
+  errno = 0;
+  makecontext(&context, &schedule, 1, arg);
 }
 
 /* give CPU possession to other user-level threads voluntarily */
