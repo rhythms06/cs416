@@ -22,13 +22,12 @@
 #include <ucontext.h>
 #define STACK_SIZE SIGSTKSZ
 #define QUANTUM 10
-typedef uint mypthread_t;
+typedef unsigned int mypthread_t;
 
 typedef struct threadControlBlock {
 	mypthread_t id;
-	// thread status
+	// thread state (running, ready, waiting, start, done)
 	ucontext_t context;
-	void *stack;
 	// thread priority
 	// And more ...
 
