@@ -13,15 +13,16 @@
 #include "mypthread.h"
 
 // VARIABLES
-
-
+bool firstThreadFlag = false;
+tcb_queue* runqueue;
 
 /* create a new thread (you can ignore attr) */
 int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
   void *(*function) (void*), void * arg) {
-
   tcb controlBlock; // a new thread control block
-
+  if (firstThreadFlag) {
+    initialize();
+  }
   ucontext_t context; // a new thread context
   ucontext_t *cp = &context; // a context pointer
 
@@ -55,11 +56,19 @@ int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
   controlBlock.context = context;
 
   // TODO: Enqueue thread onto a scheduler runqueue.
+  add_to_front(runqueue, &controlBlock);
+  // ^ Think controlBlock needs to be dynamically allocated...
   // TODO: Assign a new thread ID to controlBlock.
   *thread = controlBlock.id; // save thread ID
-
+  
   return 0;
 };
+
+void initialize() {
+  firstThreadFlag = false;
+  runqueue = (tcb_queue*) malloc(sizeof(tcb_queue));
+  initialize_queue(runqueue);
+}
 
 /* give CPU possession to other user-level threads voluntarily */
 int mypthread_yield() {
@@ -210,7 +219,7 @@ tcb* pop_from_back(tcb_queue* queue) {
 	tcb_node* popped = queue->back;
 	queue->back = popped->prev;
 
-	return popped->date;
+	return popped->data;
 }
 void print_queue(tcb_queue* queue) {
 	tcb_node* ptr = queue->front;

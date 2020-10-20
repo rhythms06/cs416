@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <ucontext.h>
+#include <stdbool.h> 
 #define STACK_SIZE SIGSTKSZ
 #define QUANTUM 10
 typedef unsigned int mypthread_t;
@@ -63,6 +64,9 @@ typedef struct tcb_queue {
 /* create a new thread */
 int mypthread_create(mypthread_t * thread, pthread_attr_t * attr, void
     *(*function)(void*), void * arg);
+
+/* initialize thread library */
+void initialize();
 
 /* give CPU pocession to other user level threads voluntarily */
 int mypthread_yield();
