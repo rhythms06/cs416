@@ -4,28 +4,61 @@
 // username of iLab:
 // iLab Server:
 
+#define _XOPEN_SOURCE 600
+#include <stdlib.h>
+#include <stdio.h>
+#include <signal.h>
+#include <unistd.h>
+#include <errno.h>
 #include "mypthread.h"
 
 // VARIABLES
 
 
 
-/* create a new thread */
+/* create a new thread (you can ignore attr) */
 int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
-                      void *(*function)(void*), void * arg) {
-       tcb controlBlock; // a new thread control block
-       ucontext_t context; // a new thread context
-       void *stack = malloc(STACK_SIZE); // allocate stack space
-       context.uc_stack.ss_sp = stack; // the base of the new stack
-       context.uc_stack.ss_size = STACK_SIZE; // the size of the new stack
-       context.uc_link = NULL; // the successor stack
-       context.uc_stack.ss_flags = 0;
-	   makecontext(&context, *function, 1);
-       controlBlock.context = context;
-       // after everything is all set, push this thread int
-       // YOUR CODE HERE
+  void *(*function) (void*), void * arg) {
 
-    return 0;
+  tcb controlBlock; // a new thread control block
+
+  ucontext_t context; // a new thread context
+  ucontext_t *cp = &context; // a context pointer
+
+  // Try to initialize context
+  if (getcontext(cp) < 0) {
+    perror("getcontext() reported an error");
+    exit(1);
+  }
+
+  // Try allocating the context's stack
+  void *stack = malloc(STACK_SIZE);
+  if (stack == NULL) {
+    perror("Could not allocated a new stack");
+    exit(1);
+  }
+
+  // Modify the context
+  context.uc_link = NULL; // assign the successor context
+  context.uc_stack.ss_sp = stack; // assign the context's stack
+  context.uc_stack.ss_size = STACK_SIZE; // the size of the new stack
+  context.uc_stack.ss_flags = 0;
+
+  // Try applying our modifications
+  errno = 0;
+  makecontext(&context, &function, 1, arg);
+  if (errno != 0) {
+    perror("makecontext() reported an error");
+    exit(1);
+  }
+
+  controlBlock.context = context;
+
+  // TODO: Enqueue thread onto a scheduler runqueue.
+  // TODO: Assign a new thread ID to controlBlock.
+  *thread = controlBlock.id; // save thread ID
+
+  return 0;
 };
 
 /* give CPU possession to other user-level threads voluntarily */
