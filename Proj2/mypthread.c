@@ -13,8 +13,9 @@
 #include "mypthread.h"
 
 // VARIABLES
-bool firstThreadFlag = false;
+bool firstThreadFlag = true;
 tcb_queue* runqueue;
+mypthread_t currentThread;
 
 /* create a new thread (you can ignore attr) */
 int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
@@ -60,7 +61,7 @@ int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
   // ^ Think controlBlock needs to be dynamically allocated...
   // TODO: Assign a new thread ID to controlBlock.
   *thread = controlBlock.id; // save thread ID
-  
+
   return 0;
 };
 
@@ -73,9 +74,13 @@ void initialize() {
 /* give CPU possession to other user-level threads voluntarily */
 int mypthread_yield() {
 
+  // Find tcb with currentThread
+  
 	// change thread state from Running to Ready
+
 	// save context of this thread to its thread control block
 	// wwitch from thread context to scheduler context
+  swapcontext()
 
 	// YOUR CODE HERE
 	return 0;
@@ -184,6 +189,7 @@ static void sched_mlfq() {
 
 /*** QUEUE FUNCTIONS ***/
 void initialize_queue(tcb_queue* queue) {
+  queue = (tcb_queue*) malloc(sizeof(tcb_queue));
 	queue->front = NULL;
 	queue->back = NULL;
 	queue->size = 0;
