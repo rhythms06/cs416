@@ -210,7 +210,7 @@ tcb* pop_from_back(tcb_queue* queue) {
 	tcb_node* popped = queue->back;
 	queue->back = popped->prev;
 
-	return popped;
+	return popped->date;
 }
 void print_queue(tcb_queue* queue) {
 	tcb_node* ptr = queue->front;
