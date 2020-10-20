@@ -102,7 +102,7 @@ void initialize() {
 
   // Try applying our modifications
   errno = 0;
-  makecontext(&context, &schedule, 1, arg);
+  makecontext(&context, &schedule, 1, NULL);
   /** ANNOYING OVERHEAD FOR CREATING A CONTEXT **/
 }
 
@@ -122,7 +122,7 @@ int mypthread_yield() {
   // }
   // currentTcb->context = context;
 	// wwitch from thread context to scheduler context
-  swapcontext((&(currentTcb->context), scheduler_context);
+  swapcontext((&(currentTcb->context)), &scheduler_context);
   /* NOTE:
       I commented out the code above swapcontext because I was unsure if needed. That code was meant to 
       "save context of this thread to its control block" but after looking at the man pages for swap context, it seems that saves the
@@ -146,9 +146,9 @@ void mypthread_exit(void *value_ptr) {
 int mypthread_join(mypthread_t thread, void **value_ptr) {
 
 	// wait for a specific thread to terminate
-  while (thread.status != terminated) {
+  // while (thread.status != terminated) {
     
-  }
+  // }
 	// de-allocate any dynamic memory created by the joining thread
   // SEARCH THE THREAD IN THE QUEUE? DEALLOCATE THAT?
   // make sure to return the return value of the exiting thread in value_ptr if not null
@@ -198,10 +198,11 @@ int mypthread_mutex_destroy(mypthread_mutex_t *mutex) {
 
 void switch_to_scheduler(int signum){
 
-  swapcontext(&main_thread_context, scheduler_context);
+  swapcontext(&main_thread_context, &scheduler_context);
 }
 
 void initialize_timer(){
+  // Set so that context switches to scheduler upon timer signal (SIGPROF)
   memset (&sa, 0, sizeof (sa));
 	sa.sa_handler = &switch_to_scheduler;
 	sigaction (SIGPROF, &sa, NULL);

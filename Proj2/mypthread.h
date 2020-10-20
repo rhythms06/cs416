@@ -93,6 +93,8 @@ int mypthread_mutex_unlock(mypthread_mutex_t *mutex);
 int mypthread_mutex_destroy(mypthread_mutex_t *mutex);
 
 /* SCHEDULER FUNCTIONS */
+static void schedule();
+static void sched_stcf();
 void switch_to_scheduler(int signum);
 void initialize_timer();
 
