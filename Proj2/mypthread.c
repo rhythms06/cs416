@@ -75,12 +75,25 @@ void initialize() {
 int mypthread_yield() {
 
   // Find tcb with currentThread
-  
+  tcb* currentTcb = find_tcb_by_id(currentThread);
 	// change thread state from Running to Ready
-
+  currentTcb->state = READY;
 	// save context of this thread to its thread control block
+  // ucontext_t context; // a new thread context
+  // ucontext_t *cp = &context; // a context pointer
+  // if (getcontext(cp) < 0) {
+  //   perror("getcontext() reported an error");
+  //   exit(1);
+  // }
+  // currentTcb->context = context;
 	// wwitch from thread context to scheduler context
-  swapcontext()
+  swapcontext((&(currentTcb->context), scheduler_context);
+  /* NOTE:
+      I commented out the code above swapcontext because I was unsure if needed. That code was meant to 
+      "save context of this thread to its control block" but after looking at the man pages for swap context, it seems that saves the
+      current context into the first argument. 
+  */
+  // TODO: create scheduler context (probably in initializer function)
 
 	// YOUR CODE HERE
 	return 0;
@@ -234,4 +247,14 @@ void print_queue(tcb_queue* queue) {
 		ptr = ptr->next;
 	}
 	return;
+}
+tcb* find_tcb_by_id(mypthread_t id) {
+  tcb_node* ptr = runqueue->front;
+  while(ptr != NULL) {
+    if (ptr->data->id == id) {
+      return ptr->data;
+    }
+		ptr = ptr->next;
+	}
+  return NULL;
 }

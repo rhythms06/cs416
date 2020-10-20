@@ -96,6 +96,7 @@ void initialize_queue(tcb_queue* queue);
 void add_to_front(tcb_queue* queue, tcb* new_tcb);
 tcb* pop_from_back(tcb_queue*);
 void print_queue(tcb_queue* queue);
+tcb* find_tcb_by_id(mypthread_t id);
 
 #ifdef USE_MYTHREAD
 #define pthread_t mypthread_t
