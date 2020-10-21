@@ -30,8 +30,8 @@ int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
   if (firstThreadFlag) {
     initialize();
   }
-  ucontext_t context; // a new thread context
-  ucontext_t *cp = &context; // a context pointer
+
+  ucontext_t *cp = (ucontext_t*) malloc(sizeof(tcb)); // a new context pointer
 
   // Try to initialize context
   if (getcontext(cp) < 0) {
@@ -46,21 +46,23 @@ int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
     exit(1);
   }
 
+  controlBlock.context = cp;
+
   // Modify the context
-  context.uc_link = NULL; // assign the successor context
-  context.uc_stack.ss_sp = stack; // assign the context's stack
-  context.uc_stack.ss_size = STACK_SIZE; // the size of the new stack
-  context.uc_stack.ss_flags = 0;
+  controlBlock.context -> uc_link = NULL; // assign the successor context
+  controlBlock.context -> uc_stack.ss_sp = stack; // assign the context's stack
+  controlBlock.context -> uc_stack.ss_size = STACK_SIZE; // the size of the new stack
+  controlBlock.context -> uc_stack.ss_flags = 0;
 
   // Try applying our modifications
   errno = 0;
-  makecontext(&context, &function, 1, arg);
+  makecontext(controlBlock.context, &function, 1, arg);
   if (errno != 0) {
     perror("makecontext() reported an error");
     exit(1);
   }
 
-  controlBlock.context = context;
+
   controlBlock.counter = 0;
 
   // TODO: Enqueue thread onto a scheduler runqueue.

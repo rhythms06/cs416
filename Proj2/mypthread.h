@@ -33,7 +33,7 @@ typedef struct threadControlBlock {
 	mypthread_t id;
 	// thread state (running, ready, waiting, start, done)
 	enum state state;
-	ucontext_t context;
+	ucontext_t* context;
 	// thread priority
 	int counter;
 	// And more ...
