@@ -37,7 +37,7 @@ typedef struct threadControlBlock {
 	// thread priority
 	int counter;
 	// And more ...
-
+    void* returnValue;
 	// YOUR CODE HERE
 } tcb;
 
