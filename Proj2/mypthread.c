@@ -141,9 +141,15 @@ int mypthread_yield() {
 /* terminate a thread */
 // Also deallocate any dynamic memory created when you started this thread
 void mypthread_exit(void *value_ptr) {
-	// Deallocated any dynamic memory created when starting this thread
+	tcb* currentTCB = find_tcb_by_id(currentThreadID);
 
-	// YOUR CODE HERE
+	currentTCB -> state = DONE;
+
+	if (value_ptr != NULL) {
+	    value_ptr = currentTCB -> returnValue;
+	}
+
+	free(currentTCB -> context);
 };
 
 
