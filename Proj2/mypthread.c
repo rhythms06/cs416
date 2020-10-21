@@ -166,13 +166,13 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
   waited_on_tcb->counter += 1;
 
 	// wait for the thread to terminate
-  while(waited_on_tcb->state != TERMINATED);
+  while(waited_on_tcb->state != DONE);
   currentTcb->state = RUNNING;
 	// de-allocate any dynamic memory created by the joining thread
   waited_on_tcb->wait_counter -= 1;
   // SEARCH THE THREAD IN THE QUEUE? DEALLOCATE THAT?
   // make sure to return the return value of the exiting thread in value_ptr if not null
-  value_ptr* = waited_on_tcb->returnValue;
+  *value_ptr = waited_on_tcb->returnValue;
 
 	// YOUR CODE HERE
 	return 0;
@@ -276,15 +276,15 @@ static void sched_stcf() {
   // put the one with min counter to the back
   
   move_min_to_back();
-  if (runqueue->back->data->counter < currentThread->data->counter) {
+  if (runqueue->back->data->counter < currentThread->counter) {
     // enqueue old currentThread
-    add_to_front(queue, currentThread);
+    add_to_front(runqueue, currentThread);
     // dequeue from runqueue and make it new currentThread
     currentThread = pop_from_back(runqueue);
   }
 
   // swap back to main context
-  swap(&main_thread_context, &scheduler_context);
+  swapcontext(&main_thread_context, &scheduler_context);
 
 	// YOUR CODE HERE
 }
