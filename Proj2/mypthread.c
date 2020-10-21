@@ -353,7 +353,7 @@ void move_min_to_back() {
 	}
 
   // Then find id and move it to the back
-  tcb_node* ptr = runqueue->front;
+  ptr = runqueue->front;
   while(ptr != NULL) {
     if (ptr->data->id == min_id) {
       // Case 1: node is in the front of the list
