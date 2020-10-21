@@ -161,14 +161,18 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
   // Set current status to wait
   tcb* currentTcb = find_tcb_by_id(currentThreadID);
   currentTcb->state = WAITING; // not sure if i should do this!!
-	// wait for a specific thread to terminate
-  while (find_tcb_by_id(thread) != NULL);
-  currentTCB->state = RUNNING; //
+  tcb* waited_on_tcb = find_tcb_by_id(thread);
+  waited_on_tcb->counter += 1;
 
+	// wait for the thread to terminate
+  while(waited_on_tcb->state != TERMINATED);
+  currentTcb->state = RUNNING;
 	// de-allocate any dynamic memory created by the joining thread
-
+  waited_on_tcb->wait_counter -= 1;
   // SEARCH THE THREAD IN THE QUEUE? DEALLOCATE THAT?
   // make sure to return the return value of the exiting thread in value_ptr if not null
+  value_ptr* = waited_on_tcb->returnValue;
+
 	// YOUR CODE HERE
 	return 0;
 };
