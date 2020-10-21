@@ -15,7 +15,7 @@
 // VARIABLES
 bool firstThreadFlag = true;
 tcb_queue* runqueue;
-mypthread_t currentThread;
+mypthread_t currentThreadID;
 ucontext_t scheduler_context;
 ucontext_t main_thread_context;
 
@@ -110,8 +110,8 @@ void initialize() {
 /* give CPU possession to other user-level threads voluntarily */
 int mypthread_yield() {
 
-  // Find tcb with currentThread
-  tcb* currentTcb = find_tcb_by_id(currentThread);
+  // Find tcb with currentThreadID
+  tcb* currentTcb = find_tcb_by_id(currentThreadID);
 	// change thread state from Running to Ready
   currentTcb->state = READY;
 	// save context of this thread to its thread control block
