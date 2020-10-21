@@ -16,6 +16,7 @@
 bool firstThreadFlag = true;
 tcb_queue* runqueue;
 mypthread_t currentThreadID;
+tcb* currentThread;
 ucontext_t scheduler_context;
 ucontext_t main_thread_context;
 
@@ -273,8 +274,18 @@ static void sched_stcf() {
 	// (feel free to modify arguments and return types)
   // find min counter
   // put the one with min counter to the back
+  
   move_min_to_back();
+  if (runqueue->back->data->counter < currentThread->data->counter) {
+    // enqueue old currentThread
+    add_to_front(queue, currentThread);
+    // dequeue from runqueue and make it new currentThread
+    currentThread = pop_from_back(runqueue);
+  }
+
   // swap back to main context
+  swap(&main_thread_context, &scheduler_context);
+
 	// YOUR CODE HERE
 }
 
