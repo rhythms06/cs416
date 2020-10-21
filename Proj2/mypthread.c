@@ -42,7 +42,7 @@ int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
   // Try allocating the context's stack
   void *stack = malloc(STACK_SIZE);
   if (stack == NULL) {
-    perror("Could not allocated a new stack");
+    perror("Could not allocate a new stack");
     exit(1);
   }
 
@@ -66,6 +66,7 @@ int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
   // TODO: Enqueue thread onto a scheduler runqueue.
   add_to_front(runqueue, &controlBlock);
   // ^ Think controlBlock needs to be dynamically allocated...
+  
   // TODO: Assign a new thread ID to controlBlock.
   *thread = controlBlock.id; // save thread ID
 
@@ -125,9 +126,9 @@ int mypthread_yield() {
 	// wwitch from thread context to scheduler context
   swapcontext((&(currentTcb->context)), &scheduler_context);
   /* NOTE:
-      I commented out the code above swapcontext because I was unsure if needed. That code was meant to 
+      I commented out the code above swapcontext because I was unsure if needed. That code was meant to
       "save context of this thread to its control block" but after looking at the man pages for swap context, it seems that saves the
-      current context into the first argument. 
+      current context into the first argument.
   */
   // TODO: create scheduler context (probably in initializer function)
 
@@ -136,6 +137,7 @@ int mypthread_yield() {
 };
 
 /* terminate a thread */
+// Also deallocate any dynamic memory created when you started this thread
 void mypthread_exit(void *value_ptr) {
 	// Deallocated any dynamic memory created when starting this thread
 
@@ -148,7 +150,7 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
 
 	// wait for a specific thread to terminate
   // while (thread.status != terminated) {
-    
+
   // }
 	// de-allocate any dynamic memory created by the joining thread
   // SEARCH THE THREAD IN THE QUEUE? DEALLOCATE THAT?
@@ -208,7 +210,7 @@ void initialize_timer(){
 	sa.sa_handler = &switch_to_scheduler;
 	sigaction (SIGPROF, &sa, NULL);
 
-  timer.it_interval.tv_usec = 0; 
+  timer.it_interval.tv_usec = 0;
 	timer.it_interval.tv_sec = 2;
 
 	// Set up the current timer to go off in 1 second
@@ -251,7 +253,7 @@ static void schedule() {
 static void sched_stcf() {
 	// Your own implementation of STCF
 	// (feel free to modify arguments and return types)
-  // find min counter 
+  // find min counter
   // put the one with min counter to the back
   move_min_to_back();
   // swap back to main context
@@ -356,7 +358,7 @@ void move_min_to_back() {
       else if (runqueue->back == ptr) {
         // we actually don't have to do anything in this case, we can just return
         return;
-      } 
+      }
 
       // Case 3: node is in the middle of the list
       else {

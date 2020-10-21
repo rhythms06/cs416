@@ -21,13 +21,13 @@
 #include <signal.h>
 #include <sys/time.h>
 #include <ucontext.h>
-#include <stdbool.h> 
+#include <stdbool.h>
 #include <limits.h>
 #define STACK_SIZE SIGSTKSZ
 #define QUANTUM 10
 typedef unsigned int mypthread_t;
 
-enum state{RUNNING, READY, WAITING, START, DONE};
+enum state {RUNNING, READY, WAITING, START, DONE};
 
 typedef struct threadControlBlock {
 	mypthread_t id;
