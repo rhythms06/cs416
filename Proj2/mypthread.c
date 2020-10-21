@@ -47,6 +47,8 @@ int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
   }
 
   controlBlock.context = cp;
+  controlBlock.wait_counter = 0;
+  controlBlock.state = READY;
 
   // Modify the context
   controlBlock.context -> uc_link = NULL; // assign the successor context
@@ -156,11 +158,15 @@ void mypthread_exit(void *value_ptr) {
 /* Wait for thread termination */
 int mypthread_join(mypthread_t thread, void **value_ptr) {
 
+  // Set current status to wait
+  tcb* currentTcb = find_tcb_by_id(currentThreadID);
+  currentTcb->state = WAITING; // not sure if i should do this!!
 	// wait for a specific thread to terminate
-  // while (thread.status != terminated) {
+  while (find_tcb_by_id(thread) != NULL);
+  currentTCB->state = RUNNING; //
 
-  // }
 	// de-allocate any dynamic memory created by the joining thread
+
   // SEARCH THE THREAD IN THE QUEUE? DEALLOCATE THAT?
   // make sure to return the return value of the exiting thread in value_ptr if not null
 	// YOUR CODE HERE

@@ -38,6 +38,8 @@ typedef struct threadControlBlock {
 	int counter;
 	// And more ...
     void* returnValue;
+	// Counter to count the number of threads waiting on this thread
+	int wait_counter;
 	// YOUR CODE HERE
 } tcb;
 
