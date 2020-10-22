@@ -18,6 +18,6 @@
 int main(int argc, char **argv) {
 	mypthread_t t1 = NULL;
 	mypthread_create(&t1, NULL, f1, NULL);
-	printf("Added Thread %ld to CPU.", t1);
+	printf("Added Thread %u to CPU.", t1);
 	return 0;
 }
