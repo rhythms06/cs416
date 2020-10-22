@@ -9,6 +9,9 @@
 
 #define _GNU_SOURCE
 
+// This line suppresses deprecation warnings on macOS
+#define _XOPEN_SOURCE 600
+
 /* To use Linux pthread Library in Benchmark, you have to comment the USE_MYTHREAD macro */
 #define USE_MYTHREAD 1
 
@@ -25,6 +28,8 @@
 #include <limits.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <math.h>
+#include <memory.h>
 #define STACK_SIZE 200000
 #define QUANTUM 5000 // The length of one quantum, in microseconds
 #define MAX_QUANTUM 1 // The number of quanta a thread is allowed to run for

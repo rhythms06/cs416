@@ -4,13 +4,6 @@
 // username of iLab:
 // iLab Server:
 
-#define _XOPEN_SOURCE 600
-// #include <stdlib.h>
-// #include <stdio.h>
-// #include <signal.h>
-// #include <unistd.h>
-
-#include <math.h>
 #include "mypthread.h"
 
 // VARIABLES
@@ -64,7 +57,7 @@ int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
 
   // Try applying our modifications
   errno = 0;
-  makecontext(controlBlock.context, &function, 1, arg);
+  makecontext(controlBlock.context, (void *)function, 1, arg);
   if (errno != 0) {
     perror("makecontext() reported an error");
     exit(1);
@@ -134,7 +127,7 @@ int mypthread_yield() {
   // }
   // currentTcb->context = context;
 	// wwitch from thread context to scheduler context
-  swapcontext((&(currentTcb->context)), &scheduler_context);
+  swapcontext(currentTcb->context, &scheduler_context);
   /* NOTE:
       I commented out the code above swapcontext because I was unsure if needed. That code was meant to
       "save context of this thread to its control block" but after looking at the man pages for swap context, it seems that saves the
@@ -400,7 +393,7 @@ tcb* find_tcb_by_id(mypthread_t id) {
 void move_min_to_back() {
   tcb_node* ptr = runqueue->front;
   int min = INT_MAX;
-  pthread_t min_id = NULL;
+  pthread_t min_id = 0;
   // First find id of min node
   while(ptr != NULL) {
     if (ptr->data->counter < min) {
