@@ -109,6 +109,7 @@ void initialize() {
   makecontext(cp, &schedule, 1, NULL);
   /** ANNOYING OVERHEAD FOR CREATING A CONTEXT **/
   init_main_thread(); // add the main thread to the scheduler
+  initialize_timer();
 }
 
 /* give CPU possession to other user-level threads voluntarily */
