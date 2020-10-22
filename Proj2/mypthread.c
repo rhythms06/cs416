@@ -25,7 +25,7 @@ struct itimerval timer;
 /* create a new thread (you can ignore attr) */
 int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
   void *(*function) (void*), void * arg) {
-  tcb controlBlock; // a new thread control block
+  tcb* controlBlock = (tcb*) malloc(sizeof(tcb)); // a new thread control block
   if (firstThreadFlag) {
     initialize();
   }
@@ -45,33 +45,33 @@ int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
     exit(1);
   }
 
-  controlBlock.context = cp;
-  controlBlock.wait_counter = 0;
-  controlBlock.state = READY;
+  controlBlock->context = cp;
+  controlBlock->wait_counter = 0;
+  controlBlock->state = READY;
 
   // Modify the context
-  controlBlock.context -> uc_link = NULL; // assign the successor context
-  controlBlock.context -> uc_stack.ss_sp = stack; // assign the context's stack
-  controlBlock.context -> uc_stack.ss_size = STACK_SIZE; // the size of the new stack
-  controlBlock.context -> uc_stack.ss_flags = 0;
+  controlBlock->context -> uc_link = NULL; // assign the successor context
+  controlBlock->context -> uc_stack.ss_sp = stack; // assign the context's stack
+  controlBlock->context -> uc_stack.ss_size = STACK_SIZE; // the size of the new stack
+  controlBlock->context -> uc_stack.ss_flags = 0;
 
   // Try applying our modifications
   errno = 0;
-  makecontext(controlBlock.context, (void *)function, 1, arg);
+  makecontext(controlBlock->context, (void *)function, 1, arg);
   if (errno != 0) {
     perror("makecontext() reported an error");
     exit(1);
   }
 
 
-  controlBlock.counter = 0;
+  controlBlock->counter = 0;
 
   // TODO: Enqueue thread onto a scheduler runqueue.
-  add_to_front(runqueue, &controlBlock);
+  add_to_front(runqueue, controlBlock);
   // ^ Think controlBlock needs to be dynamically allocated...
   
   // TODO: Assign a new thread ID to controlBlock.
-  *thread = controlBlock.id; // save thread ID
+  *thread = controlBlock->id; // save thread ID
 
   return 0;
 };
@@ -83,8 +83,7 @@ void initialize() {
 
   /** ANNOYING OVERHEAD FOR CREATING A CONTEXT **/
   // TODO: Create Scheduler context
-  ucontext_t context; // a new thread context
-  ucontext_t *cp = &context; // a context pointer
+  ucontext_t *cp = (ucontext_t*) malloc(sizeof(ucontext_t)); // a context pointer
 
   // Try to initialize context
   if (getcontext(cp) < 0) {
@@ -100,14 +99,14 @@ void initialize() {
   }
 
   // Modify the context
-  context.uc_link = NULL; // assign the successor context
-  context.uc_stack.ss_sp = stack; // assign the context's stack
-  context.uc_stack.ss_size = STACK_SIZE; // the size of the new stack
-  context.uc_stack.ss_flags = 0;
+  cp->uc_link = NULL; // assign the successor context
+  cp->uc_stack.ss_sp = stack; // assign the context's stack
+  cp->uc_stack.ss_size = STACK_SIZE; // the size of the new stack
+  cp->uc_stack.ss_flags = 0;
 
   // Try applying our modifications
   errno = 0;
-  makecontext(&context, &schedule, 1, NULL);
+  makecontext(cp, &schedule, 1, NULL);
   /** ANNOYING OVERHEAD FOR CREATING A CONTEXT **/
   init_main_thread(); // add the main thread to the scheduler
 }
