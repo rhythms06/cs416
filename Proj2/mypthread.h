@@ -104,6 +104,9 @@ int mypthread_mutex_unlock(mypthread_mutex_t *mutex);
 /* destroy the mutex */
 int mypthread_mutex_destroy(mypthread_mutex_t *mutex);
 
+/* MAIN THREAD */
+void init_main_thread();
+
 /* SCHEDULER FUNCTIONS */
 static void schedule();
 static void sched_stcf();

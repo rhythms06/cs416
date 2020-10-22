@@ -109,6 +109,7 @@ void initialize() {
   errno = 0;
   makecontext(&context, &schedule, 1, NULL);
   /** ANNOYING OVERHEAD FOR CREATING A CONTEXT **/
+  init_main_thread(); // add the main thread to the scheduler
 }
 
 /* give CPU possession to other user-level threads voluntarily */
@@ -227,6 +228,50 @@ int mypthread_mutex_destroy(mypthread_mutex_t *mutex) {
 
 	return 0;
 };
+
+/* Initialize main thread */
+void init_main_thread() {
+  tcb* controlBlock = (*tcb) malloc(sizeof(tcb));
+
+  ucontext_t *cp = (ucontext_t*) malloc(sizeof(ucontext_t)); // a new context pointer
+
+  // Try to initialize context
+  if (getcontext(cp) < 0) {
+    perror("getcontext() reported an error");
+    exit(1);
+  }
+  // Try allocating the context's stack
+  // void *stack = malloc(STACK_SIZE);
+  // if (stack == NULL) {
+  //   perror("Could not allocate a new stack");
+  //   exit(1);
+  // }
+
+  controlBlock->context = cp;
+  controlBlock->wait_counter = 0;
+  controlBlock->state = RUNNING;
+
+  // Modify the context
+  // controlBlock->context -> uc_link = NULL; // assign the successor context
+  // controlBlock->context -> uc_stack.ss_sp = stack; // assign the context's stack
+  // controlBlock->context -> uc_stack.ss_size = STACK_SIZE; // the size of the new stack
+  // controlBlock->context -> uc_stack.ss_flags = 0;
+
+  // Try applying our modifications
+  // errno = 0;
+  // makecontext(controlBlock.context, (void *)function, 1, arg);
+  // if (errno != 0) {
+  //   perror("makecontext() reported an error");
+  //   exit(1);
+  // }
+
+
+  controlBlock->counter = 0;
+
+  // TODO: Enqueue thread onto a scheduler runqueue.
+  add_to_front(runqueue, &controlBlock);
+}
+
 
 /* scheduler */
 
