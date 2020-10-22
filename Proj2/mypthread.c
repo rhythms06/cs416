@@ -230,7 +230,7 @@ int mypthread_mutex_destroy(mypthread_mutex_t *mutex) {
 
 /* Initialize main thread */
 void init_main_thread() {
-  tcb* controlBlock = (*tcb) malloc(sizeof(tcb));
+  tcb* controlBlock = (tcb*) malloc(sizeof(tcb));
 
   ucontext_t *cp = (ucontext_t*) malloc(sizeof(ucontext_t)); // a new context pointer
 
@@ -268,7 +268,7 @@ void init_main_thread() {
   controlBlock->counter = 0;
 
   // TODO: Enqueue thread onto a scheduler runqueue.
-  add_to_front(runqueue, &controlBlock);
+  add_to_front(runqueue, controlBlock);
 }
 
 
