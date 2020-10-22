@@ -11,13 +11,14 @@
  * This will not be graded.
  */
 
- void* f1(void* p) {
+ void* f1(void* arg) {
 	 printf("Hi, I'm function 'f1'.");
+	 return arg;
  }
 
 int main(int argc, char **argv) {
-	mypthread_t t1 = NULL;
-	mypthread_create(&t1, NULL, f1, NULL);
+	mypthread_t t1;
+	mypthread_create(&t1, NULL, &f1, NULL);
 	printf("Added Thread %u to CPU.", t1);
 	return 0;
 }
