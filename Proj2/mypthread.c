@@ -1,8 +1,8 @@
 // File:	mypthread.c
 
-// List all group member's name:
-// username of iLab:
-// iLab Server:
+// List all group member's name: Sakib Rasul and Sarah Squillace
+// username of iLab: // TODO
+// iLab Server: // TODO
 
 #include "mypthread.h"
 
