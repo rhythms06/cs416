@@ -13,17 +13,20 @@
 #define USE_MYTHREAD 1
 
 /* include lib header files that you need here: */
+
+#include <stdio.h>
 #include <unistd.h>
+
 #include <sys/syscall.h>
 #include <sys/types.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <signal.h>
 #include <sys/time.h>
 #include <ucontext.h>
 #include <stdbool.h>
 #include <limits.h>
-#define STACK_SIZE SIGSTKSZ
+#include <errno.h>
+#include <stdlib.h>
+#define STACK_SIZE 200000
 #define QUANTUM 10
 typedef unsigned int mypthread_t;
 

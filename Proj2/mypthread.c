@@ -5,11 +5,11 @@
 // iLab Server:
 
 #define _XOPEN_SOURCE 600
-#include <stdlib.h>
-#include <stdio.h>
-#include <signal.h>
-#include <unistd.h>
-#include <errno.h>
+// #include <stdlib.h>
+// #include <stdio.h>
+// #include <signal.h>
+// #include <unistd.h>
+
 #include "mypthread.h"
 
 // VARIABLES
@@ -32,14 +32,14 @@ int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
     initialize();
   }
 
-  ucontext_t *cp = (ucontext_t*) malloc(sizeof(tcb)); // a new context pointer
+  ucontext_t *cp = (ucontext_t*) malloc(sizeof(ucontext_t)); // a new context pointer
 
   // Try to initialize context
   if (getcontext(cp) < 0) {
     perror("getcontext() reported an error");
     exit(1);
   }
-
+  printf("hey test");
   // Try allocating the context's stack
   void *stack = malloc(STACK_SIZE);
   if (stack == NULL) {
@@ -310,7 +310,7 @@ void initialize_queue(tcb_queue* queue) {
 }
 void add_to_front(tcb_queue* queue, tcb* new_tcb) {
 	printf("adding to front!\n");
-	tcb_node* new_tcb_node = (tcb_node*) malloc(sizeof(tcb_node));
+	tcb_node* new_tcb_node =  malloc(sizeof(tcb_node));
 	new_tcb_node->data = new_tcb;
 	new_tcb_node->next = queue->front;
 	new_tcb_node->prev = NULL;

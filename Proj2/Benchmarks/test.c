@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <unistd.h>
+//#include <stdio.h>
+//#include <unistd.h>
 #include <pthread.h>
 #include "../mypthread.h"
 
@@ -16,6 +16,7 @@
 int main(int argc, char **argv) {
 
 	/* Implement HERE */
+	printf("hello");
 	mypthread_t t1 = NULL;
 	mypthread_create(&t1, NULL, f1, NULL);
 	return 0;
