@@ -19,8 +19,8 @@ struct sigaction sa;
 struct itimerval timer;
 
 // Thread timer
-struct timeval threadStartTime;
-struct timeval threadEndTime;
+//struct timeval threadStartTime;
+//struct timeval threadEndTime;
 
 /* create a new thread (you can ignore attr) */
 int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
@@ -161,15 +161,15 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
   currentTcb->state = WAITING; // not sure if i should do this!!
 
   // Stop the thread's timer
-  gettimeofday(&threadEndTime, NULL);
-  long elapsedMicrosecondsSinceLastScheduled =
-          ((threadEndTime.tv_sec * 1000000 + threadEndTime.tv_usec) -
-           (threadStartTime.tv_sec * 1000000 + threadStartTime.tv_usec))
-          / QUANTUM;
+//  gettimeofday(&threadEndTime, NULL);
+//  long elapsedMicrosecondsSinceLastScheduled =
+//          ((threadEndTime.tv_sec * 1000000 + threadEndTime.tv_usec) -
+//           (threadStartTime.tv_sec * 1000000 + threadStartTime.tv_usec))
+//          / QUANTUM;
 
   // Increment the thread's counter
-  currentTcb -> counter +=
-          elapsedMicrosecondsSinceLastScheduled;
+//  currentTcb -> counter +=
+//          elapsedMicrosecondsSinceLastScheduled;
 
   tcb* waited_on_tcb = find_tcb_by_id(thread);
 
@@ -178,7 +178,7 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
   currentTcb->state = RUNNING;
 
   // Start the new thread's timer.
-  gettimeofday(&threadStartTime, NULL);
+//  gettimeofday(&threadStartTime, NULL);
 
 	// de-allocate any dynamic memory created by the joining thread
   waited_on_tcb->wait_counter -= 1;
@@ -287,15 +287,18 @@ static void sched_stcf() {
   // find min counter
   // put the one with min counter to the back
 
-  gettimeofday(&threadEndTime, NULL);
+//  gettimeofday(&threadEndTime, NULL);
 
-  long elapsedMicrosecondsSinceLastScheduled =
-          ((threadEndTime.tv_sec * 1000000 + threadEndTime.tv_usec) -
-           (threadStartTime.tv_sec * 1000000 + threadStartTime.tv_usec))
-           / QUANTUM;
+//  long elapsedMicrosecondsSinceLastScheduled =
+//          ((threadEndTime.tv_sec * 1000000 + threadEndTime.tv_usec) -
+//           (threadStartTime.tv_sec * 1000000 + threadStartTime.tv_usec))
+//           / QUANTUM;
 
-   currentThread -> counter +=
-           elapsedMicrosecondsSinceLastScheduled;
+//   currentThread -> counter +=
+//           elapsedMicrosecondsSinceLastScheduled;
+
+  // Increment counter
+  currentThread->counter++;
 
   move_min_to_back();
 
@@ -310,7 +313,7 @@ static void sched_stcf() {
         currentThread -> counter = 0;
     }
     // Start recording the thread's runtime.
-    gettimeofday(&threadStartTime, NULL);
+//    gettimeofday(&threadStartTime, NULL);
   }
 
   // swap back to main context
