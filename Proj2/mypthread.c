@@ -50,7 +50,7 @@ int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
   controlBlock->state = READY;
 
   // Modify the context
-  controlBlock->context -> uc_link = scheduler_context; // assign the successor context
+  controlBlock->context -> uc_link = &scheduler_context; // assign the successor context
   controlBlock->context -> uc_stack.ss_sp = stack; // assign the context's stack
   controlBlock->context -> uc_stack.ss_size = STACK_SIZE; // the size of the new stack
   controlBlock->context -> uc_stack.ss_flags = 0;
