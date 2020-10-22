@@ -16,7 +16,6 @@
 
 #include <stdio.h>
 #include <unistd.h>
-
 #include <sys/syscall.h>
 #include <sys/types.h>
 #include <signal.h>
@@ -33,17 +32,18 @@ typedef unsigned int mypthread_t;
 enum state {RUNNING, READY, WAITING, START, DONE};
 
 typedef struct threadControlBlock {
+    // The thread's ID. Used to refer to the thread.
 	mypthread_t id;
-	// thread state (running, ready, waiting, start, done)
+	// Thread state (running, ready, waiting, start, done)
 	enum state state;
+	// A pointer to the thread's context
 	ucontext_t* context;
-	// thread priority
-	int counter;
-	// And more ...
+	// The number of time quanta the thread has run for so far (aka its priority)
+	long counter;
+	// The thread's return value.
     void* returnValue;
 	// Counter to count the number of threads waiting on this thread
 	int wait_counter;
-	// YOUR CODE HERE
 } tcb;
 
 /* mutex struct definition */

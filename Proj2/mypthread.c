@@ -20,7 +20,7 @@ tcb* currentThread;
 ucontext_t scheduler_context;
 ucontext_t main_thread_context;
 
-// Timer global vars
+// Scheduling timer
 struct sigaction sa;
 struct itimerval timer;
 
@@ -158,12 +158,10 @@ void mypthread_exit(void *value_ptr) {
 
 /* Wait for thread termination */
 int mypthread_join(mypthread_t thread, void **value_ptr) {
-
   // Set current status to wait
   tcb* currentTcb = find_tcb_by_id(currentThreadID);
   currentTcb->state = WAITING; // not sure if i should do this!!
   tcb* waited_on_tcb = find_tcb_by_id(thread);
-  waited_on_tcb->counter += 1;
 
 	// wait for the thread to terminate
   while(waited_on_tcb->state != DONE);
@@ -276,6 +274,7 @@ static void sched_stcf() {
   // put the one with min counter to the back
   
   move_min_to_back();
+
   if (runqueue->back->data->counter < currentThread->counter) {
     // enqueue old currentThread
     add_to_front(runqueue, currentThread);
