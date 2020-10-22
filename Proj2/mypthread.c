@@ -10,6 +10,7 @@
 // #include <signal.h>
 // #include <unistd.h>
 
+#include <math.h>
 #include "mypthread.h"
 
 // VARIABLES
@@ -23,6 +24,10 @@ ucontext_t main_thread_context;
 // Scheduling timer
 struct sigaction sa;
 struct itimerval timer;
+
+// Thread timer
+struct timeval threadStartTime;
+struct timeval threadEndTime;
 
 /* create a new thread (you can ignore attr) */
 int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
@@ -161,11 +166,27 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
   // Set current status to wait
   tcb* currentTcb = find_tcb_by_id(currentThreadID);
   currentTcb->state = WAITING; // not sure if i should do this!!
+
+  // Stop the thread's timer
+  gettimeofday(&threadEndTime, NULL);
+  long elapsedMicrosecondsSinceLastScheduled =
+          ((threadEndTime.tv_sec * 1000000 + threadEndTime.tv_usec) -
+           (threadStartTime.tv_sec * 1000000 + threadStartTime.tv_usec))
+          / QUANTUM;
+
+  // Increment the thread's counter
+  currentTcb -> counter +=
+          elapsedMicrosecondsSinceLastScheduled;
+
   tcb* waited_on_tcb = find_tcb_by_id(thread);
 
 	// wait for the thread to terminate
   while(waited_on_tcb->state != DONE);
   currentTcb->state = RUNNING;
+
+  // Start the new thread's timer.
+  gettimeofday(&threadStartTime, NULL);
+
 	// de-allocate any dynamic memory created by the joining thread
   waited_on_tcb->wait_counter -= 1;
   // SEARCH THE THREAD IN THE QUEUE? DEALLOCATE THAT?
@@ -272,7 +293,17 @@ static void sched_stcf() {
 	// (feel free to modify arguments and return types)
   // find min counter
   // put the one with min counter to the back
-  
+
+  gettimeofday(&threadEndTime, NULL);
+
+  long elapsedMicrosecondsSinceLastScheduled =
+          ((threadEndTime.tv_sec * 1000000 + threadEndTime.tv_usec) -
+           (threadStartTime.tv_sec * 1000000 + threadStartTime.tv_usec))
+           / QUANTUM;
+
+   currentThread -> counter +=
+           elapsedMicrosecondsSinceLastScheduled;
+
   move_min_to_back();
 
   if (runqueue->back->data->counter < currentThread->counter) {
@@ -280,6 +311,13 @@ static void sched_stcf() {
     add_to_front(runqueue, currentThread);
     // dequeue from runqueue and make it new currentThread
     currentThread = pop_from_back(runqueue);
+    // If the minimum counter meets/exceeds the max quantum...
+    if (currentThread -> counter >= MAX_QUANTUM) {
+        // ...reset the thread's counter.
+        currentThread -> counter = 0;
+    }
+    // Start recording the thread's runtime.
+    gettimeofday(&threadStartTime, NULL);
   }
 
   // swap back to main context
