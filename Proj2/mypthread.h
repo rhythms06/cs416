@@ -32,7 +32,7 @@
 #include <memory.h>
 #define STACK_SIZE 200000
 #define QUANTUM 5000 // The length of one quantum, in microseconds
-#define MAX_QUANTUM 1 // The number of quanta a thread is allowed to run for
+#define MAX_COUNTER 1 // The number of quanta a thread is allowed to run for
 typedef unsigned int mypthread_t;
 
 enum state {RUNNING, READY, WAITING, START, DONE};
