@@ -22,7 +22,9 @@ static void* f1(void* arg) {
 
 int main(int argc, char **argv) {
 	mypthread_t t1;
-	mypthread_create(&t1, NULL, &f1, "f1 has returned.");
+	char* str = (char*) malloc(sizeof(20));
+	*str = "f1 has returned.";
+	mypthread_create(&t1, NULL, &f1, ((void*) str));
   printf("Added thread %u to CPU.\n", t1);
 
   void* returnValue;
