@@ -9,6 +9,7 @@
 // VARIABLES
 bool firstThreadFlag = true;
 tcb_queue* runqueue;
+mypthread_t numThreads = -1;
 mypthread_t currentThreadID;
 tcb* currentThread;
 ucontext_t* scheduler_context;
@@ -66,12 +67,17 @@ int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
 
   controlBlock->counter = 0;
 
+  // TODO: Assign a new thread ID to controlBlock.
+  numThreads++;
+  controlBlock->id = numThreads; // save thread ID
+  *thread = controlBlock->id;
+  currentThreadID = controlBlock->id;
+
   // TODO: Enqueue thread onto a scheduler runqueue.
   add_to_front(runqueue, controlBlock);
   // ^ Think controlBlock needs to be dynamically allocated...
   
-  // TODO: Assign a new thread ID to controlBlock.
-  *thread = controlBlock->id; // save thread ID
+
 
   return 0;
 };
@@ -158,7 +164,9 @@ void mypthread_exit(void *value_ptr) {
 
 /* Wait for thread termination */
 int mypthread_join(mypthread_t thread, void **value_ptr) {
+  printf("Pausing thread %u...\n", currentThreadID);
   printf("Waiting on thread %u...\n", thread);
+
   // Set current status to wait
   tcb* currentTcb = find_tcb_by_id(currentThreadID);
   currentTcb->state = WAITING; // not sure if i should do this!!

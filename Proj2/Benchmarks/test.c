@@ -20,7 +20,10 @@ int main(int argc, char **argv) {
 	mypthread_t t1;
 	void** ret;
 	mypthread_create(&t1, NULL, &f1, "f1 has returned.");
-	printf("Added Thread %u to CPU.\n", t1);
+  printf("Added thread %u to CPU.\n", t1);
+
+  mypthread_create(&t1, NULL, &f1, "f1 has returned.");
+  printf("Added thread %u to CPU.\n", t1);
 
 	void* returnValue;
 	mypthread_join(t1, &returnValue);
