@@ -139,7 +139,7 @@ void mypthread_exit(void *value_ptr) {
 
   // might have to call schedule? what should currentThread be after this point? Since it's now pointing
   // to a block of memory that is not in use
-  setcontext(scheduler_context);
+  switch_to_scheduler(0);
 }
 
 /* Wait for thread termination */
