@@ -125,24 +125,23 @@ int mypthread_yield() {
 /* terminate a thread */
 // Also deallocate any dynamic memory created when you started this thread
 void mypthread_exit(void *value_ptr) {
-	// tcb* currentTCB = find_tcb_by_id(currentThreadID);
+  // tcb* currentTCB = find_tcb_by_id(currentThreadID);
 
-  printf("Exiting thread %u with value %s\n", currentThread -> id, *(char**)value_ptr);
+  printf("Exiting thread %u with value %s\n", currentThread->id, *(char **) value_ptr);
 
-	currentThread -> state = DONE;
+  currentThread->state = DONE;
 
   printf("Thread %u's state is currently %d\n", currentThread->id, currentThread->state);
 
-	if (value_ptr != NULL) {
-	    printf("We have an exit value!");
-	    currentThread -> returnValue = value_ptr;
-	}
+  if (value_ptr != NULL) {
+    printf("We have an exit value!");
+    currentThread->returnValue = value_ptr;
+  }
 
-	free(currentThread -> context);
+  free(currentThread->context);
   // might have to call schedule? what should currentThread be after this point? Since it's now pointing
   // to a block of memory that is not in use
-
-
+}
 
 /* Wait for thread termination */
 int mypthread_join(mypthread_t thread, void **value_ptr) {
