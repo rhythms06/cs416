@@ -49,7 +49,7 @@ typedef struct threadControlBlock {
 	// The thread's return value.
 	void* returnValue;
 	// Counter to count the number of threads waiting on this thread
-	int wait_counter;
+	struct threadControlBlock* waiting_on;
 } tcb;
 
 /* mutex struct definition */

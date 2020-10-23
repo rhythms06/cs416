@@ -47,7 +47,6 @@ int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
   }
 
   controlBlock->context = cp;
-  controlBlock->wait_counter = 0;
   controlBlock->state = READY;
 
   // Modify the context
@@ -162,13 +161,13 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
 //          elapsedMicrosecondsSinceLastScheduled;
 
   tcb* waited_on_tcb = find_tcb_by_id(thread);
-
+  currentThread->waiting_on = waited_on_tcb;
   printf("Join: Thread %u is waiting on thread %u...\n", currentThread->id, waited_on_tcb->id);
 
   printf("Join: Thread %u's state is currently %d\n", waited_on_tcb->id, waited_on_tcb->state);
 
 	// wait for the thread to terminate
-  while(waited_on_tcb->state != DONE);
+  swapcontext(currentThread->context, scheduler_context);
 
   printf("Join: Thread %u is done.\n", waited_on_tcb -> id);
 
@@ -180,7 +179,6 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
 //  gettimeofday(&threadStartTime, NULL);
 
 	// de-allocate any dynamic memory created by the joining thread
-  waited_on_tcb->wait_counter -= 1;
   // SEARCH THE THREAD IN THE QUEUE? DEALLOCATE THAT?
   // make sure to return the return value of the exiting thread in value_ptr if not null
   *value_ptr = waited_on_tcb->returnValue;
@@ -247,7 +245,6 @@ void init_main_thread() {
   // }
 
   controlBlock->context = cp;
-  controlBlock->wait_counter = 0;
   controlBlock->state = RUNNING;
 
   // Modify the context
@@ -414,7 +411,7 @@ void print_queue(tcb_queue* queue) {
 	while(ptr != NULL) {
 		printf("ID: %u\n", ptr->data->id);
     printf("STATE: %d\n", ptr->data->state);
-    printf("COUNTER: %d\n", ptr->data->counter);
+    printf("COUNTER: %ld\n", ptr->data->counter);
 		ptr = ptr->next;
 	}
 	return;
@@ -435,7 +432,7 @@ void move_min_to_back() {
   int min = INT_MAX;
   // First find id of min node
   while(ptr != NULL) {
-    if (ptr->data->counter < min && ptr->data->state != DONE) {
+    if (ptr->data->counter < min && ptr->data->state == READY) {
       min = ptr->data->counter;
     }
 		ptr = ptr->next;
@@ -456,7 +453,7 @@ void move_min_to_back() {
       else if (runqueue->front == ptr) {
         runqueue->front = ptr->next;
         ptr->prev = runqueue->back;
-        ptr->next->prev = NULL;
+        runqueue->front->prev = NULL;
         break;
       }
 
@@ -474,6 +471,7 @@ void move_min_to_back() {
   // At this point, ptr should point to the node that we want to move to the back
   // so all we have to do is
   runqueue->back->next = ptr;
+  ptr->next = NULL;
   runqueue->back = ptr;
   // cool we are done, now we can just do the pop from the back thing
 }
