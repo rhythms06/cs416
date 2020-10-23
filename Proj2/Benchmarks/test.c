@@ -18,7 +18,9 @@
 
 int main(int argc, char **argv) {
 	mypthread_t t1;
+	void** ret;
 	mypthread_create(&t1, NULL, &f1, NULL);
 	printf("Added Thread %u to CPU.", t1);
+	mypthread_join(t1, ret);
 	return 0;
 }

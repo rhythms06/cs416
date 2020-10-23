@@ -12,7 +12,7 @@ tcb_queue* runqueue;
 mypthread_t currentThreadID;
 tcb* currentThread;
 ucontext_t scheduler_context;
-ucontext_t main_thread_context;
+ucontext_t current_thread_context;
 
 // Scheduling timer
 struct sigaction sa;
@@ -277,7 +277,7 @@ void init_main_thread() {
 
 void switch_to_scheduler(int signum){
   printf("Switching to scheduler");
-  swapcontext(&main_thread_context, &scheduler_context);
+  swapcontext(&current_thread_context, &scheduler_context);
 }
 
 void initialize_timer(){
@@ -362,7 +362,7 @@ static void sched_stcf() {
   }
 
   // swap back to main context
-  swapcontext(&main_thread_context, &scheduler_context);
+  swapcontext(&current_thread_context, &scheduler_context);
 
 	// YOUR CODE HERE
 }
