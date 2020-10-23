@@ -86,7 +86,7 @@ void initialize() {
   scheduler_context = (ucontext_t*) malloc(sizeof(ucontext_t)); // a context pointer
 
   // Try to initialize context
-  if (getcontext(cp) < 0) {
+  if (getcontext(scheduler_context) < 0) {
     perror("getcontext() reported an error");
     exit(1);
   }
@@ -240,6 +240,7 @@ void init_main_thread() {
     perror("getcontext() reported an error");
     exit(1);
   }
+  current_thread_context = cp; // THIS LINE IS PROBABLY WRONG. MIGHT LEAD TO INF LOOP
   // Try allocating the context's stack
   // void *stack = malloc(STACK_SIZE);
   // if (stack == NULL) {
@@ -265,7 +266,6 @@ void init_main_thread() {
   //   exit(1);
   // }
 
-
   controlBlock->counter = 0;
 
   // TODO: Enqueue thread onto a scheduler runqueue.
@@ -277,7 +277,7 @@ void init_main_thread() {
 
 void switch_to_scheduler(int signum){
   printf("Switching to scheduler");
-  swapcontext(&current_thread_context, scheduler_context);
+  swapcontext(current_thread_context, scheduler_context);
 }
 
 void initialize_timer(){
@@ -362,7 +362,7 @@ static void sched_stcf() {
   }
 
   // swap back to main context
-  swapcontext(&current_thread_context, scheduler_context);
+  swapcontext(current_thread_context, scheduler_context);
 
 	// YOUR CODE HERE
 }
