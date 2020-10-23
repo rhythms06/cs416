@@ -164,12 +164,12 @@ void mypthread_exit(void *value_ptr) {
 
 /* Wait for thread termination */
 int mypthread_join(mypthread_t thread, void **value_ptr) {
-  printf("Pausing thread %u...\n", currentThreadID);
+  printf("Pausing thread %u...\n", currentThread->id);
   printf("Waiting on thread %u...\n", thread);
 
   // Set current status to wait
-  tcb* currentTcb = find_tcb_by_id(currentThreadID);
-  currentTcb->state = WAITING; // not sure if i should do this!!
+  // tcb* currentTcb = find_tcb_by_id(currentThread->id);
+  currentThread->state = WAITING; // not sure if i should do this!!
 
   // Stop the thread's timer
 //  gettimeofday(&threadEndTime, NULL);
