@@ -288,7 +288,7 @@ void init_main_thread() {
 
 void switch_to_scheduler(int signum){
   printf("Switching to scheduler");
-  swapcontext(current_thread_context, scheduler_context);
+  swapcontext(currentThread->context, scheduler_context);
 }
 
 void initialize_timer(){
