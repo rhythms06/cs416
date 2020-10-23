@@ -11,8 +11,8 @@ bool firstThreadFlag = true;
 tcb_queue* runqueue;
 mypthread_t currentThreadID;
 tcb* currentThread;
-ucontext_t scheduler_context;
-ucontext_t current_thread_context;
+ucontext_t* scheduler_context;
+ucontext_t* current_thread_context;
 
 // Scheduling timer
 struct sigaction sa;
@@ -50,7 +50,7 @@ int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
   controlBlock->state = READY;
 
   // Modify the context
-  controlBlock->context -> uc_link = &scheduler_context; // assign the successor context
+  controlBlock->context -> uc_link = scheduler_context; // assign the successor context
   controlBlock->context -> uc_stack.ss_sp = stack; // assign the context's stack
   controlBlock->context -> uc_stack.ss_size = STACK_SIZE; // the size of the new stack
   controlBlock->context -> uc_stack.ss_flags = 0;
@@ -83,7 +83,7 @@ void initialize() {
 
   /** ANNOYING OVERHEAD FOR CREATING A CONTEXT **/
   // TODO: Create Scheduler context
-  ucontext_t *cp = (ucontext_t*) malloc(sizeof(ucontext_t)); // a context pointer
+  scheduler_context = (ucontext_t*) malloc(sizeof(ucontext_t)); // a context pointer
 
   // Try to initialize context
   if (getcontext(cp) < 0) {
@@ -99,14 +99,14 @@ void initialize() {
   }
 
   // Modify the context
-  cp->uc_link = NULL; // assign the successor context
-  cp->uc_stack.ss_sp = stack; // assign the context's stack
-  cp->uc_stack.ss_size = STACK_SIZE; // the size of the new stack
-  cp->uc_stack.ss_flags = 0;
+  scheduler_context->uc_link = NULL; // assign the successor context
+  scheduler_context->uc_stack.ss_sp = stack; // assign the context's stack
+  scheduler_context->uc_stack.ss_size = STACK_SIZE; // the size of the new stack
+  scheduler_context->uc_stack.ss_flags = 0;
 
   // Try applying our modifications
   errno = 0;
-  makecontext(cp, &schedule, 1, NULL);
+  makecontext(scheduler_context, &schedule, 1, NULL);
   /** ANNOYING OVERHEAD FOR CREATING A CONTEXT **/
   init_main_thread(); // add the main thread to the scheduler
   initialize_timer();
@@ -128,7 +128,7 @@ int mypthread_yield() {
   // }
   // currentTcb->context = context;
 	// wwitch from thread context to scheduler context
-  swapcontext(currentTcb->context, &scheduler_context);
+  swapcontext(currentTcb->context, scheduler_context);
   /* NOTE:
       I commented out the code above swapcontext because I was unsure if needed. That code was meant to
       "save context of this thread to its control block" but after looking at the man pages for swap context, it seems that saves the
@@ -277,7 +277,7 @@ void init_main_thread() {
 
 void switch_to_scheduler(int signum){
   printf("Switching to scheduler");
-  swapcontext(&current_thread_context, &scheduler_context);
+  swapcontext(&current_thread_context, scheduler_context);
 }
 
 void initialize_timer(){
@@ -362,7 +362,7 @@ static void sched_stcf() {
   }
 
   // swap back to main context
-  swapcontext(&current_thread_context, &scheduler_context);
+  swapcontext(&current_thread_context, scheduler_context);
 
 	// YOUR CODE HERE
 }
