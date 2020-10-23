@@ -372,9 +372,12 @@ static void sched_stcf() {
 
   if (runqueue->back->data->counter < currentThread->counter) {
     // enqueue old currentThread
+    currentThread -> state = READY;
     add_to_front(runqueue, currentThread);
     // dequeue from runqueue and make it new currentThread
     currentThread = pop_from_back(runqueue);
+    currentThread -> state = RUNNING;
+    printf("Thread %u's state is currently %d\n", currentThread->id, currentThread->state);
     // If the minimum counter meets/exceeds the max quantum...
     // if (currentThread -> counter >= MAX_COUNTER) {
     //     // ...reset the thread's counter.
