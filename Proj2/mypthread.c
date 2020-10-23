@@ -134,7 +134,7 @@ void mypthread_exit(void *value_ptr) {
   printf("Thread %u's state is currently %d\n", currentThread->id, currentThread->state);
 
   if (value_ptr != NULL) {
-    printf("We have an exit value!");
+    printf("We have an exit value!\n");
     currentThread->returnValue = value_ptr;
   }
 
