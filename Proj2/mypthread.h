@@ -54,7 +54,7 @@ typedef struct threadControlBlock {
 
 /* mutex struct definition */
 typedef struct mypthread_mutex_t {
-  int lock;
+  bool* lock;
   tcb* ownerControlBlock;
 } mypthread_mutex_t;
 
