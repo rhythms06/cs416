@@ -138,7 +138,6 @@ void mypthread_exit(void *value_ptr) {
     currentThread->returnValue = value_ptr;
   }
 
-  free(currentThread->context);
   // might have to call schedule? what should currentThread be after this point? Since it's now pointing
   // to a block of memory that is not in use
 }
@@ -171,6 +170,8 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
   while(waited_on_tcb->state != DONE);
 
   printf("Thread %u is done.\n", waited_on_tcb -> id);
+
+  free(waited_on_tcb->context);
 
   currentThread->state = RUNNING;
 
