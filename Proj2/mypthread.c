@@ -271,6 +271,7 @@ void init_main_thread() {
   controlBlock->counter = 0;
 
   // TODO: Enqueue thread onto a scheduler runqueue.
+  currentThread = controlBlock;
   add_to_front(runqueue, controlBlock);
 }
 
@@ -365,7 +366,7 @@ static void sched_stcf() {
   }
 
   // swap back to main context
-  swapcontext(current_thread_context, scheduler_context);
+  swapcontext(scheduler_context, current_thread_context);
 
 	// YOUR CODE HERE
 }
@@ -444,12 +445,10 @@ tcb* find_tcb_by_id(mypthread_t id) {
 void move_min_to_back() {
   tcb_node* ptr = runqueue->front;
   int min = INT_MAX;
-  pthread_t min_id = 0;
   // First find id of min node
   while(ptr != NULL) {
     if (ptr->data->counter < min) {
       min = ptr->data->counter;
-      min_id = ptr->data->id;
     }
 		ptr = ptr->next;
 	}
@@ -457,18 +456,22 @@ void move_min_to_back() {
   // Then find id and move it to the back
   ptr = runqueue->front;
   while(ptr != NULL) {
-    if (ptr->data->id == min_id) {
-      // Case 1: node is in the front of the list
-      if (runqueue->front == ptr) {
-        runqueue->front = ptr->next;
-        ptr->next->prev = NULL;
-        break;
-      }
-      // Case 2: node at end of the list
-      else if (runqueue->back == ptr) {
+    if (ptr->data->counter == min) {
+
+      // Case 1: node at end of the list
+      if (runqueue->back == ptr) {
         // we actually don't have to do anything in this case, we can just return
         return;
       }
+
+      // Case 1: node is in the front of the list
+      else if (runqueue->front == ptr) {
+        runqueue->front = ptr->next;
+        ptr->prev = runqueue->back;
+        ptr->next->prev = NULL;
+        break;
+      }
+
 
       // Case 3: node is in the middle of the list
       else {
