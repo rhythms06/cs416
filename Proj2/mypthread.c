@@ -109,7 +109,7 @@ int mypthread_yield() {
   //   exit(1);
   // }
   // currentTcb->context = context;
-	// wwitch from thread context to scheduler context
+	printf("Yielding to the scheduler...\n");
   swapcontext(currentThread->context, scheduler_context);
   /* NOTE:
       I commented out the code above swapcontext because I was unsure if needed. That code was meant to
@@ -127,21 +127,25 @@ int mypthread_yield() {
 void mypthread_exit(void *value_ptr) {
 	// tcb* currentTCB = find_tcb_by_id(currentThreadID);
 
+  printf("Exiting thread %u with value %s\n", currentThread -> id, *(char**)value_ptr);
+
 	currentThread -> state = DONE;
 
+  printf("Thread %u's state is currently %d\n", currentThread->id, currentThread->state);
+
 	if (value_ptr != NULL) {
+	    printf("We have an exit value!");
 	    currentThread -> returnValue = value_ptr;
 	}
 
 	free(currentThread -> context);
   // might have to call schedule? what should currentThread be after this point? Since it's now pointing
   // to a block of memory that is not in use
-};
+
 
 
 /* Wait for thread termination */
 int mypthread_join(mypthread_t thread, void **value_ptr) {
-  printf("Thread %u is waiting on thread %u...\n", currentThread->id, thread);
 
   // Set current status to wait
   // tcb* currentTcb = find_tcb_by_id(currentThread->id);
@@ -160,8 +164,15 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
 
   tcb* waited_on_tcb = find_tcb_by_id(thread);
 
+  printf("Thread %u is waiting on thread %u...\n", currentThread->id, waited_on_tcb->id);
+
+  printf("Thread %u's state is currently %d\n", waited_on_tcb->id, waited_on_tcb->state);
+
 	// wait for the thread to terminate
   while(waited_on_tcb->state != DONE);
+
+  printf("Thread %u is done.\n", waited_on_tcb -> id);
+
   currentThread->state = RUNNING;
 
   // Start the new thread's timer.
@@ -317,10 +328,7 @@ static void schedule() {
 
 /* Preemptive SJF (STCF) scheduling algorithm */
 static void sched_stcf() {
-	// Your own implementation of STCF
 	// (feel free to modify arguments and return types)
-  // find min counter
-  // put the one with min counter to the back
 
 //  gettimeofday(&threadEndTime, NULL);
 
@@ -339,9 +347,12 @@ static void sched_stcf() {
 
   if (runqueue->back->data->counter < currentThread->counter) {
     // enqueue old currentThread
+    currentThread -> state = READY;
     add_to_front(runqueue, currentThread);
     // dequeue from runqueue and make it new currentThread
     currentThread = pop_from_back(runqueue);
+    currentThread -> state = RUNNING;
+    printf("Thread %u's state is currently %d\n", currentThread->id, currentThread->state);
     // If the minimum counter meets/exceeds the max quantum...
     // if (currentThread -> counter >= MAX_COUNTER) {
     //     // ...reset the thread's counter.
@@ -352,9 +363,8 @@ static void sched_stcf() {
   }
 
   // swap back to main context
+  printf("Switching out of the scheduler...\n");
   swapcontext(scheduler_context, currentThread->context);
-
-	// YOUR CODE HERE
 }
 
 /* Preemptive MLFQ scheduling algorithm */

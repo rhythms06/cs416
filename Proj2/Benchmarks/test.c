@@ -11,26 +11,24 @@
  * This will not be graded.
  */
 
-mypthread_t t1;
-mypthread_t t2;
-
 static void* f1(void* arg) {
-  printf("Hi, I'm function 'f1'.\n");
-  mypthread_exit(arg);
-  return 0;
+  printf("Hi, I'm function 'f1' and I was given the arg '%s'\n", *(char**)arg);
+  char* exit_statement_f1 = "f1 has exited";
+  mypthread_exit(&exit_statement_f1);
+  char* return_statement_f1 = "f1 has returned";
+  return return_statement_f1;
 }
 
 int main(int argc, char **argv) {
 	mypthread_t t1;
-	char* str = (char*) malloc(sizeof(20));
-	*str = "f1 has returned.";
-	mypthread_create(&t1, NULL, &f1, ((void*) str));
+	char* str = "f1's sole argument";
+	mypthread_create(&t1, NULL, &f1, &str);
   printf("Added thread %u to CPU.\n", t1);
 
   void* returnValue;
 
   mypthread_join(t1, &returnValue);
-  printf("The thread returned the value: %s\n", (char*) returnValue);
+  printf("The thread exited with the value: %s\n", *(char**) returnValue);
 
   free(returnValue);
 
