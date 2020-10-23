@@ -186,7 +186,7 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
 
 	// wait for the thread to terminate
   while(waited_on_tcb->state != DONE);
-  currentTcb->state = RUNNING;
+  currentThread->state = RUNNING;
 
   // Start the new thread's timer.
 //  gettimeofday(&threadStartTime, NULL);
