@@ -246,10 +246,10 @@ void init_main_thread() {
   ucontext_t *cp = (ucontext_t*) malloc(sizeof(ucontext_t)); // a new context pointer
 
   // Try to initialize context
-  if (getcontext(cp) < 0) {
-    perror("getcontext() reported an error");
-    exit(1);
-  }
+  // if (getcontext(cp) < 0) {
+  //   perror("getcontext() reported an error");
+  //   exit(1);
+  // }
   current_thread_context = cp; // THIS LINE IS PROBABLY WRONG. MIGHT LEAD TO INF LOOP
   // Try allocating the context's stack
   // void *stack = malloc(STACK_SIZE);
