@@ -120,6 +120,8 @@ tcb* pop_from_back(tcb_queue*);
 void print_queue(tcb_queue* queue);
 tcb* find_tcb_by_id(mypthread_t id);
 void move_min_to_back();
+void remove_from_queue(mypthread_t threadId);
+void initialize_scheduler();
 
 #ifdef USE_MYTHREAD
 #define pthread_t mypthread_t

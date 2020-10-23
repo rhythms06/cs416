@@ -89,30 +89,7 @@ void initialize() {
 
   /** ANNOYING OVERHEAD FOR CREATING A CONTEXT **/
   // TODO: Create Scheduler context
-  scheduler_context = (ucontext_t*) malloc(sizeof(ucontext_t)); // a context pointer
-
-  // Try to initialize context
-  if (getcontext(scheduler_context) < 0) {
-    perror("getcontext() reported an error");
-    exit(1);
-  }
-
-  // Try allocating the context's stack
-  void *stack = malloc(STACK_SIZE);
-  if (stack == NULL) {
-    perror("Could not allocated a new stack");
-    exit(1);
-  }
-
-  // Modify the context
-  scheduler_context->uc_link = NULL; // assign the successor context
-  scheduler_context->uc_stack.ss_sp = stack; // assign the context's stack
-  scheduler_context->uc_stack.ss_size = STACK_SIZE; // the size of the new stack
-  scheduler_context->uc_stack.ss_flags = 0;
-
-  // Try applying our modifications
-  errno = 0;
-  makecontext(scheduler_context, &schedule, 1, NULL);
+  initialize_scheduler();
   /** ANNOYING OVERHEAD FOR CREATING A CONTEXT **/
   init_main_thread(); // add the main thread to the scheduler
 
@@ -157,9 +134,8 @@ void mypthread_exit(void *value_ptr) {
 	}
 
 	free(currentThread -> context);
-  if (value_ptr == NULL) {
-    // free and remove from queue
-  }
+  // might have to call schedule? what should currentThread be after this point? Since it's now pointing
+  // to a block of memory that is not in use
 };
 
 
@@ -196,7 +172,7 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
   // SEARCH THE THREAD IN THE QUEUE? DEALLOCATE THAT?
   // make sure to return the return value of the exiting thread in value_ptr if not null
   *value_ptr = waited_on_tcb->returnValue;
-
+  remove_from_queue(waited_on_tcb->id);
 	// YOUR CODE HERE
 	return 0;
 };
@@ -332,7 +308,7 @@ static void schedule() {
 // schedule policy
 #ifndef MLFQ
 	// Choose STCF
-  sched_stcf();
+    sched_stcf();
 #else
 	// Choose MLFQ
 #endif
@@ -498,4 +474,52 @@ void move_min_to_back() {
   runqueue->back->next = ptr;
   runqueue->back = ptr;
   // cool we are done, now we can just do the pop from the back thing
+}
+
+void remove_from_queue(mypthread_t threadId) {
+  tcb_node* ptr = runqueue->front;
+
+  while(ptr != NULL) {
+    if (ptr->data->id == threadId) {
+      if (runqueue->front == ptr) {
+        ptr->next->prev = NULL;
+        runqueue->front = ptr->next;
+      } else if (runqueue->back == ptr) {
+        ptr->prev->next = NULL;
+        runqueue->back = ptr->prev;
+      } else {
+        ptr->prev->next = ptr->next;
+        ptr->next->prev = ptr->prev;
+      }
+    }
+  }
+
+  free(ptr);
+}
+
+void initialize_scheduler() {
+  scheduler_context = (ucontext_t*) malloc(sizeof(ucontext_t)); // a context pointer
+
+  // Try to initialize context
+  if (getcontext(scheduler_context) < 0) {
+    perror("getcontext() reported an error");
+    exit(1);
+  }
+
+  // Try allocating the context's stack
+  void *stack = malloc(STACK_SIZE);
+  if (stack == NULL) {
+    perror("Could not allocated a new stack");
+    exit(1);
+  }
+
+  // Modify the context
+  scheduler_context->uc_link = NULL; // assign the successor context
+  scheduler_context->uc_stack.ss_sp = stack; // assign the context's stack
+  scheduler_context->uc_stack.ss_size = STACK_SIZE; // the size of the new stack
+  scheduler_context->uc_stack.ss_flags = 0;
+
+  // Try applying our modifications
+  errno = 0;
+  makecontext(scheduler_context, &schedule, 1, NULL);
 }
