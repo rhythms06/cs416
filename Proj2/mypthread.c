@@ -127,11 +127,11 @@ int mypthread_yield() {
 void mypthread_exit(void *value_ptr) {
   // tcb* currentTCB = find_tcb_by_id(currentThreadID);
 
-  printf("Exiting thread %u with value %s\n", currentThread->id, *(char **) value_ptr);
+  printf("Exiting thread %u with value %s\n", currentThread->id, (char *) value_ptr);
 
   currentThread->state = DONE;
 
-  printf("Thread %u's state is currently %d\n", currentThread->id, currentThread->state);
+  printf("Exiting: Thread %u's state is currently %d\n", currentThread->id, currentThread->state);
 
   if (value_ptr != NULL) {
     printf("We have an exit value!\n");
@@ -140,6 +140,7 @@ void mypthread_exit(void *value_ptr) {
 
   // might have to call schedule? what should currentThread be after this point? Since it's now pointing
   // to a block of memory that is not in use
+  setcontext(scheduler_context);
 }
 
 /* Wait for thread termination */
@@ -162,14 +163,14 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
 
   tcb* waited_on_tcb = find_tcb_by_id(thread);
 
-  printf("Thread %u is waiting on thread %u...\n", currentThread->id, waited_on_tcb->id);
+  printf("Join: Thread %u is waiting on thread %u...\n", currentThread->id, waited_on_tcb->id);
 
-  printf("Thread %u's state is currently %d\n", waited_on_tcb->id, waited_on_tcb->state);
+  printf("Join: Thread %u's state is currently %d\n", waited_on_tcb->id, waited_on_tcb->state);
 
 	// wait for the thread to terminate
   while(waited_on_tcb->state != DONE);
 
-  printf("Thread %u is done.\n", waited_on_tcb -> id);
+  printf("Join: Thread %u is done.\n", waited_on_tcb -> id);
 
   free(waited_on_tcb->context);
 
@@ -340,7 +341,7 @@ static void sched_stcf() {
       // dequeue from runqueue and make it new currentThread
       currentThread = pop_from_back(runqueue);
       currentThread -> state = RUNNING;
-      printf("Thread %u's state is currently %d\n", currentThread->id, currentThread->state);
+      printf("Scheduler: Thread %u's state is currently %d\n", currentThread->id, currentThread->state);
       // If the minimum counter meets/exceeds the max quantum...
       // if (currentThread -> counter >= MAX_COUNTER) {
       //     // ...reset the thread's counter.
@@ -411,7 +412,9 @@ tcb* pop_from_back(tcb_queue* queue) {
 void print_queue(tcb_queue* queue) {
 	tcb_node* ptr = queue->front;
 	while(ptr != NULL) {
-		printf("%u\n", ptr->data->id);
+		printf("ID: %u\n", ptr->data->id);
+    printf("STATE: %d\n", ptr->data->state);
+    printf("COUNTER: %d\n", ptr->data->counter);
 		ptr = ptr->next;
 	}
 	return;
@@ -432,7 +435,7 @@ void move_min_to_back() {
   int min = INT_MAX;
   // First find id of min node
   while(ptr != NULL) {
-    if (ptr->data->counter < min) {
+    if (ptr->data->counter < min && ptr->data->state != DONE) {
       min = ptr->data->counter;
     }
 		ptr = ptr->next;
