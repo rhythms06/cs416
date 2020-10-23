@@ -37,7 +37,7 @@ int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
     perror("getcontext() reported an error");
     exit(1);
   }
-  printf("hey test");
+
   // Try allocating the context's stack
   void *stack = malloc(STACK_SIZE);
   if (stack == NULL) {
@@ -109,6 +109,7 @@ void initialize() {
   makecontext(scheduler_context, &schedule, 1, NULL);
   /** ANNOYING OVERHEAD FOR CREATING A CONTEXT **/
   init_main_thread(); // add the main thread to the scheduler
+
   initialize_timer();
 }
 
@@ -157,6 +158,7 @@ void mypthread_exit(void *value_ptr) {
 
 /* Wait for thread termination */
 int mypthread_join(mypthread_t thread, void **value_ptr) {
+  printf("Waiting on thread %u...\n", thread);
   // Set current status to wait
   tcb* currentTcb = find_tcb_by_id(currentThreadID);
   currentTcb->state = WAITING; // not sure if i should do this!!
@@ -296,6 +298,7 @@ void initialize_timer(){
 	timer.it_value.tv_usec = 0;
 	timer.it_value.tv_sec = 1;
 
+	printf("Starting timer...\n");
 	// Set the timer up (start the timer)
 	setitimer(ITIMER_PROF, &timer, NULL);
 }
@@ -387,7 +390,7 @@ void initialize_queue(tcb_queue* queue) {
 	queue->size = 0;
 }
 void add_to_front(tcb_queue* queue, tcb* new_tcb) {
-	printf("adding to front!\n");
+
 	tcb_node* new_tcb_node =  malloc(sizeof(tcb_node));
 	new_tcb_node->data = new_tcb;
 	new_tcb_node->next = queue->front;
