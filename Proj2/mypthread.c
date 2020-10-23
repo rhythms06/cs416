@@ -132,7 +132,7 @@ int mypthread_yield() {
   //   exit(1);
   // }
   // currentTcb->context = context;
-	// wwitch from thread context to scheduler context
+	printf("Yielding to the scheduler...\n");
   swapcontext(currentThread->context, scheduler_context);
   /* NOTE:
       I commented out the code above swapcontext because I was unsure if needed. That code was meant to
@@ -150,9 +150,14 @@ int mypthread_yield() {
 void mypthread_exit(void *value_ptr) {
 	// tcb* currentTCB = find_tcb_by_id(currentThreadID);
 
+  printf("Exiting thread %u with value %s\n", currentThread -> id, *(char**)value_ptr);
+
 	currentThread -> state = DONE;
 
+  printf("Thread %u's state is currently %d\n", currentThread->id, currentThread->state);
+
 	if (value_ptr != NULL) {
+	    printf("We have an exit value!");
 	    currentThread -> returnValue = value_ptr;
 	}
 
@@ -165,7 +170,6 @@ void mypthread_exit(void *value_ptr) {
 
 /* Wait for thread termination */
 int mypthread_join(mypthread_t thread, void **value_ptr) {
-  printf("Thread %u is waiting on thread %u...\n", currentThread->id, thread);
 
   // Set current status to wait
   // tcb* currentTcb = find_tcb_by_id(currentThread->id);
@@ -184,8 +188,15 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
 
   tcb* waited_on_tcb = find_tcb_by_id(thread);
 
+  printf("Thread %u is waiting on thread %u...\n", currentThread->id, waited_on_tcb->id);
+
+  printf("Thread %u's state is currently %d\n", waited_on_tcb->id, waited_on_tcb->state);
+
 	// wait for the thread to terminate
   while(waited_on_tcb->state != DONE);
+
+  printf("Thread %u is done.\n", waited_on_tcb -> id);
+
   currentThread->state = RUNNING;
 
   // Start the new thread's timer.
@@ -376,6 +387,7 @@ static void sched_stcf() {
   }
 
   // swap back to main context
+  printf("Switching out of the scheduler...\n");
   swapcontext(scheduler_context, currentThread->context);
 
 	// YOUR CODE HERE
