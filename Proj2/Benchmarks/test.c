@@ -15,8 +15,9 @@ mypthread_t t1;
 mypthread_t t2;
 
 static void* f1(void* arg) {
-  printf("Hi, I'm function 'f1'.");
-  return arg;
+  printf("Hi, I'm function 'f1'.\n");
+  mypthread_exit(arg);
+  return 0;
 }
 
 int main(int argc, char **argv) {
