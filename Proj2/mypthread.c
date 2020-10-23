@@ -492,6 +492,7 @@ void remove_from_queue(mypthread_t threadId) {
         ptr->next->prev = ptr->prev;
       }
     }
+    ptr = ptr->next;
   }
 
   free(ptr);
