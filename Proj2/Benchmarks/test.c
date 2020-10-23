@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
 	mypthread_t t1;
 	char* str = "f1's sole argument";
 	mypthread_create(&t1, NULL, &f1, &str);
-  printf("Added thread %u to CPU.\n", t1);
+  printf("Main: Added thread %u to CPU.\n", t1);
 
   void* returnValue;
 

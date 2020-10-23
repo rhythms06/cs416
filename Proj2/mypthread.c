@@ -183,7 +183,7 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
   // make sure to return the return value of the exiting thread in value_ptr if not null
   *value_ptr = waited_on_tcb->returnValue;
   remove_from_queue(waited_on_tcb->id);
-	// YOUR CODE HERE
+  printf("Join: Saved return value %s\n", *(char**)value_ptr);
 	return 0;
 };
 
