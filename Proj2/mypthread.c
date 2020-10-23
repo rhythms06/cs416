@@ -328,43 +328,32 @@ static void schedule() {
 
 /* Preemptive SJF (STCF) scheduling algorithm */
 static void sched_stcf() {
-	// (feel free to modify arguments and return types)
+  while(1) {
+    currentThread->counter++;
 
-//  gettimeofday(&threadEndTime, NULL);
+    move_min_to_back();
 
-//  long elapsedMicrosecondsSinceLastScheduled =
-//          ((threadEndTime.tv_sec * 1000000 + threadEndTime.tv_usec) -
-//           (threadStartTime.tv_sec * 1000000 + threadStartTime.tv_usec))
-//           / QUANTUM;
+    if (runqueue->back->data->counter < currentThread->counter) {
+      // enqueue old currentThread
+      currentThread -> state = READY;
+      add_to_front(runqueue, currentThread);
+      // dequeue from runqueue and make it new currentThread
+      currentThread = pop_from_back(runqueue);
+      currentThread -> state = RUNNING;
+      printf("Thread %u's state is currently %d\n", currentThread->id, currentThread->state);
+      // If the minimum counter meets/exceeds the max quantum...
+      // if (currentThread -> counter >= MAX_COUNTER) {
+      //     // ...reset the thread's counter.
+      //     currentThread -> counter = 0;
+      // }
+      // Start recording the thread's runtime.
+  //    gettimeofday(&threadStartTime, NULL);
+    }
 
-//   currentThread -> counter +=
-//           elapsedMicrosecondsSinceLastScheduled;
-
-  // Increment counter
-  currentThread->counter++;
-
-  move_min_to_back();
-
-  if (runqueue->back->data->counter < currentThread->counter) {
-    // enqueue old currentThread
-    currentThread -> state = READY;
-    add_to_front(runqueue, currentThread);
-    // dequeue from runqueue and make it new currentThread
-    currentThread = pop_from_back(runqueue);
-    currentThread -> state = RUNNING;
-    printf("Thread %u's state is currently %d\n", currentThread->id, currentThread->state);
-    // If the minimum counter meets/exceeds the max quantum...
-    // if (currentThread -> counter >= MAX_COUNTER) {
-    //     // ...reset the thread's counter.
-    //     currentThread -> counter = 0;
-    // }
-    // Start recording the thread's runtime.
-//    gettimeofday(&threadStartTime, NULL);
+    // swap back to main context
+    printf("Switching out of the scheduler...\n");
+    swapcontext(scheduler_context, currentThread->context);
   }
-
-  // swap back to main context
-  printf("Switching out of the scheduler...\n");
-  swapcontext(scheduler_context, currentThread->context);
 }
 
 /* Preemptive MLFQ scheduling algorithm */
