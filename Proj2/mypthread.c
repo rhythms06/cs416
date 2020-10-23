@@ -374,7 +374,7 @@ static void sched_stcf() {
   }
 
   // swap back to main context
-  swapcontext(scheduler_context, current_thread_context);
+  swapcontext(scheduler_context, currentThread->context);
 
 	// YOUR CODE HERE
 }
