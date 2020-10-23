@@ -47,7 +47,7 @@ typedef struct threadControlBlock {
 	// The number of time quanta the thread has run for so far (aka its priority)
 	long counter;
 	// The thread's return value.
-    void* returnValue;
+	void* returnValue;
 	// Counter to count the number of threads waiting on this thread
 	int wait_counter;
 } tcb;
