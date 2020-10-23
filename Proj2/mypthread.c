@@ -122,10 +122,8 @@ void initialize() {
 /* give CPU possession to other user-level threads voluntarily */
 int mypthread_yield() {
 
-  // Find tcb with currentThreadID
-  tcb* currentTcb = find_tcb_by_id(currentThreadID);
 	// change thread state from Running to Ready
-  currentTcb->state = READY;
+  currentThread->state = READY;
 	// save context of this thread to its thread control block
   // ucontext_t context; // a new thread context
   // ucontext_t *cp = &context; // a context pointer
@@ -135,7 +133,7 @@ int mypthread_yield() {
   // }
   // currentTcb->context = context;
 	// wwitch from thread context to scheduler context
-  swapcontext(currentTcb->context, scheduler_context);
+  swapcontext(currentThread->context, scheduler_context);
   /* NOTE:
       I commented out the code above swapcontext because I was unsure if needed. That code was meant to
       "save context of this thread to its control block" but after looking at the man pages for swap context, it seems that saves the
@@ -150,15 +148,18 @@ int mypthread_yield() {
 /* terminate a thread */
 // Also deallocate any dynamic memory created when you started this thread
 void mypthread_exit(void *value_ptr) {
-	tcb* currentTCB = find_tcb_by_id(currentThreadID);
+	// tcb* currentTCB = find_tcb_by_id(currentThreadID);
 
-	currentTCB -> state = DONE;
+	currentThread -> state = DONE;
 
 	if (value_ptr != NULL) {
-	    value_ptr = currentTCB -> returnValue;
+	    value_ptr = currentThread -> returnValue;
 	}
 
-	free(currentTCB -> context);
+	free(currentThread -> context);
+  if (value_ptr == NULL) {
+    // free and remove from queue
+  }
 };
 
 
