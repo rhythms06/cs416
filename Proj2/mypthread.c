@@ -250,7 +250,7 @@ void init_main_thread() {
   //   perror("getcontext() reported an error");
   //   exit(1);
   // }
-  current_thread_context = cp; // THIS LINE IS PROBABLY WRONG. MIGHT LEAD TO INF LOOP
+//  current_thread_context = cp; // THIS LINE IS PROBABLY WRONG. MIGHT LEAD TO INF LOOP
   // Try allocating the context's stack
   // void *stack = malloc(STACK_SIZE);
   // if (stack == NULL) {
@@ -277,6 +277,8 @@ void init_main_thread() {
   // }
 
   controlBlock->counter = 0;
+  controlBlock->id = 0;
+  numThreads = controlBlock->id;
 
   // TODO: Enqueue thread onto a scheduler runqueue.
   currentThread = controlBlock;
