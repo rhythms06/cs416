@@ -162,7 +162,8 @@ void mypthread_exit(void *value_ptr) {
 	}
 
 	free(currentThread -> context);
-  if (value_ptr == NULL) {
+
+	if (value_ptr == NULL) {
     // free and remove from queue
   }
 };
@@ -352,10 +353,7 @@ static void schedule() {
 
 /* Preemptive SJF (STCF) scheduling algorithm */
 static void sched_stcf() {
-	// Your own implementation of STCF
 	// (feel free to modify arguments and return types)
-  // find min counter
-  // put the one with min counter to the back
 
 //  gettimeofday(&threadEndTime, NULL);
 
@@ -389,8 +387,6 @@ static void sched_stcf() {
   // swap back to main context
   printf("Switching out of the scheduler...\n");
   swapcontext(scheduler_context, currentThread->context);
-
-	// YOUR CODE HERE
 }
 
 /* Preemptive MLFQ scheduling algorithm */
