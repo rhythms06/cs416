@@ -289,7 +289,7 @@ void init_main_thread() {
 /* scheduler */
 
 void switch_to_scheduler(int signum){
-  printf("Switching to scheduler");
+  printf("Switching to scheduler...\n");
   swapcontext(currentThread->context, scheduler_context);
 }
 
