@@ -190,9 +190,10 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
 /* initialize the mutex lock */
 int mypthread_mutex_init(mypthread_mutex_t *mutex,
                           const pthread_mutexattr_t *mutexattr) {
-	//initialize data structures for this mutex
-
-	// YOUR CODE HERE
+	bool* lock = (bool*) malloc(sizeof(bool*));
+	*lock = false;
+  mutex->lock = lock;
+	mutex->ownerControlBlock = currentThread;
 	return 0;
 };
 
@@ -202,8 +203,9 @@ int mypthread_mutex_lock(mypthread_mutex_t *mutex) {
         // if the mutex is acquired successfully, enter the critical section
         // if acquiring mutex fails, push current thread into block list and //
         // context switch to the scheduler thread
-
-        // YOUR CODE HERE
+        if (__atomic_test_and_set (mutex->lock, 0) != true) {
+          // TODO: Place mutex->ownerControlBlock onto block queue and switch_to_scheduler
+        }
         return 0;
 };
 
@@ -212,8 +214,8 @@ int mypthread_mutex_unlock(mypthread_mutex_t *mutex) {
 	// Release mutex and make it available again.
 	// Put threads in block list to run queue
 	// so that they could compete for mutex later.
-
-	// YOUR CODE HERE
+  mutex->lock = false;
+  // TODO: Release any threads currently in the block queue.
 	return 0;
 };
 
@@ -221,7 +223,7 @@ int mypthread_mutex_unlock(mypthread_mutex_t *mutex) {
 /* destroy the mutex */
 int mypthread_mutex_destroy(mypthread_mutex_t *mutex) {
 	// Deallocate dynamic memory created in mypthread_mutex_init
-
+  free(mutex->lock);
 	return 0;
 };
 
