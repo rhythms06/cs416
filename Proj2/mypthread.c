@@ -357,10 +357,10 @@ static void sched_stcf() {
     // dequeue from runqueue and make it new currentThread
     currentThread = pop_from_back(runqueue);
     // If the minimum counter meets/exceeds the max quantum...
-    if (currentThread -> counter >= MAX_COUNTER) {
-        // ...reset the thread's counter.
-        currentThread -> counter = 0;
-    }
+    // if (currentThread -> counter >= MAX_COUNTER) {
+    //     // ...reset the thread's counter.
+    //     currentThread -> counter = 0;
+    // }
     // Start recording the thread's runtime.
 //    gettimeofday(&threadStartTime, NULL);
   }
