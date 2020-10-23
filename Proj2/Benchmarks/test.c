@@ -30,9 +30,6 @@ int main(int argc, char **argv) {
   void* returnValue;
 
   mypthread_join(t1, &returnValue);
-  printf("The thread exited with the value: %s\n", *(char**) returnValue);
-
-  free(returnValue);
-
+  printf("Main: The thread exited with the value: %s\n", returnValue);
 	return 0;
 }
