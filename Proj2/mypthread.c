@@ -153,7 +153,7 @@ void mypthread_exit(void *value_ptr) {
 	currentThread -> state = DONE;
 
 	if (value_ptr != NULL) {
-	    value_ptr = currentThread -> returnValue;
+	    currentThread -> returnValue = value_ptr;
 	}
 
 	free(currentThread -> context);
