@@ -287,7 +287,7 @@ static void sched_stcf() {
   // swap back to main context
   printf("Switching out of the scheduler...\n");
   swapcontext(scheduler_context, currentThread->context);
-//  }
+  }
 }
 
 /* Preemptive MLFQ scheduling algorithm */
