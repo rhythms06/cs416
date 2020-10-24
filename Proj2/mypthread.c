@@ -152,7 +152,7 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
 /* initialize the mutex lock */
 int mypthread_mutex_init(mypthread_mutex_t *mutex,
                           const pthread_mutexattr_t *mutexattr) {
-	bool* lock = (bool*) malloc(sizeof(bool*));
+	bool* lock = (bool*) malloc(sizeof(bool));
 	*lock = false;
   mutex->lock = lock;
 	mutex->ownerControlBlock = currentThread;
