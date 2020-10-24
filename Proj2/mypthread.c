@@ -215,6 +215,8 @@ void init_main_thread() {
 
   currentThread = controlBlock;
   add_to_front(runqueue, controlBlock);
+  printf("Runqueue after init_main_thread:\n");
+  print_queue(runqueue);
 }
 
 
@@ -269,6 +271,8 @@ static void sched_stcf() {
     currentThread->counter++;
 
     move_min_to_back();
+
+    print_queue(runqueue);
 
     if (runqueue->back->data->counter < currentThread->counter) {
       // enqueue old currentThread
@@ -341,7 +345,7 @@ tcb* pop_from_back(tcb_queue* queue) {
 void print_queue(tcb_queue* queue) {
 	tcb_node* ptr = queue->front;
 	while(ptr != NULL) {
-		printf("ID: %u\n", ptr->data->id);
+		printf("ID: %u ~~~~~\n", ptr->data->id);
     printf("STATE: %d\n", ptr->data->state);
     printf("COUNTER: %ld\n", ptr->data->counter);
 		ptr = ptr->next;
