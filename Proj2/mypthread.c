@@ -126,47 +126,27 @@ void mypthread_exit(void *value_ptr) {
 
 /* Wait for thread termination */
 int mypthread_join(mypthread_t thread, void **value_ptr) {
-
-  // Set current status to wait
-  // tcb* currentTcb = find_tcb_by_id(currentThread->id);
-  currentThread->state = WAITING; // not sure if i should do this!!
-
-  // Stop the thread's timer
-//  gettimeofday(&threadEndTime, NULL);
-//  long elapsedMicrosecondsSinceLastScheduled =
-//          ((threadEndTime.tv_sec * 1000000 + threadEndTime.tv_usec) -
-//           (threadStartTime.tv_sec * 1000000 + threadStartTime.tv_usec))
-//          / QUANTUM;
-
-  // Increment the thread's counter
-//  currentTcb -> counter +=
-//          elapsedMicrosecondsSinceLastScheduled;
-
   tcb* waited_on_tcb = find_tcb_by_id(thread);
-  currentThread->waiting_on = waited_on_tcb;
-  printf("Join: Thread %u is waiting on thread %u...\n", currentThread->id, waited_on_tcb->id);
 
-  printf("Join: Thread %u's state is currently %d\n", waited_on_tcb->id, waited_on_tcb->state);
+  if (waited_on_tcb != NULL) {
+    currentThread->waiting_on = waited_on_tcb;
+    printf("Join: Thread %u is waiting on thread %u...\n", currentThread->id, waited_on_tcb->id);
+    printf("Join: Thread %u's state is currently %d\n", waited_on_tcb->id, waited_on_tcb->state);
 
-	// wait for the thread to terminate
-  swapcontext(currentThread->context, scheduler_context);
+    if(waited_on_tcb->state != DONE) {
+      // wait for the thread to terminate
+      currentThread->state = WAITING;
+      switch_to_scheduler(0);
+    }
+    // de-allocate any dynamic memory created by the joining thread
+    //  free(waited_on_tcb->context);
+    // make sure to return the return value of the exiting thread in value_ptr if not null
+    *value_ptr = (void *) waited_on_tcb->returnValue;
+    printf("Join: Saved return value %s\n", *(char**)value_ptr);
 
-  printf("Join: Thread %u is done.\n", waited_on_tcb -> id);
+  } else { return -1; }
 
-  free(waited_on_tcb->context);
-
-  currentThread->state = RUNNING;
-
-  // Start the new thread's timer.
-//  gettimeofday(&threadStartTime, NULL);
-
-	// de-allocate any dynamic memory created by the joining thread
-  // SEARCH THE THREAD IN THE QUEUE? DEALLOCATE THAT?
-  // make sure to return the return value of the exiting thread in value_ptr if not null
-  *value_ptr = waited_on_tcb->returnValue;
-  remove_from_queue(waited_on_tcb->id);
-  printf("Join: Saved return value %s\n", *(char**)value_ptr);
-	return 0;
+  return 0;
 };
 
 /* initialize the mutex lock */
