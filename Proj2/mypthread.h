@@ -1,8 +1,8 @@
 // File:	mypthread_t.h
 
 // List all group member's name: Sakib Rasul and Sarah Squillace
-// username of iLab: // TODO
-// iLab Server: // TODO
+// username of iLab: ses333
+// iLab Server: prolog.cs.rutgers.edu
 
 #ifndef MYTHREAD_T_H
 #define MYTHREAD_T_H
