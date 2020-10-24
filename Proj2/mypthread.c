@@ -179,7 +179,15 @@ int mypthread_mutex_unlock(mypthread_mutex_t *mutex) {
 	// Put threads in block list to run queue
 	// so that they could compete for mutex later.
   mutex->lock = false;
-  // TODO: Release any threads currently in the block queue.
+
+  tcb_node* ptr = runqueue->front;
+  while(ptr != NULL) {
+    if(ptr->data->state == BLOCKED) {
+      ptr->data->state = READY;
+    }
+    ptr = ptr->next;
+  }
+
 	return 0;
 };
 
