@@ -35,7 +35,13 @@
 #define MAX_COUNTER 1 // The number of quanta a thread is allowed to run for
 typedef unsigned int mypthread_t;
 
-enum state {RUNNING, READY, WAITING, START, DONE};
+enum state {
+    READY,
+    RUNNING,
+    DONE,
+    WAITING,
+    BLOCKED
+};
 
 typedef struct threadControlBlock {
     // The thread's ID. Used to refer to the thread.
