@@ -10,7 +10,6 @@
 bool firstThreadFlag = true;
 tcb_queue* runqueue;
 mypthread_t numThreads = -1;
-mypthread_t currentThreadID;
 tcb* currentThread;
 ucontext_t* scheduler_context;
 ucontext_t* current_thread_context;
@@ -19,10 +18,6 @@ ucontext_t* current_thread_context;
 struct sigaction sa;
 struct itimerval timer;
 
-// Thread timer
-//struct timeval threadStartTime;
-//struct timeval threadEndTime;
-
 /* create a new thread (you can ignore attr) */
 int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
   void *(*function) (void*), void * arg) {
@@ -30,53 +25,51 @@ int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
   if (firstThreadFlag) {
     initialize();
   }
+//  else {
+    ucontext_t *cp = (ucontext_t*) malloc(sizeof(ucontext_t)); // a new context pointer
 
-  ucontext_t *cp = (ucontext_t*) malloc(sizeof(ucontext_t)); // a new context pointer
+    // Try to initialize context
+    if (getcontext(cp) < 0) {
+      perror("getcontext() reported an error");
+      exit(1);
+    }
 
-  // Try to initialize context
-  if (getcontext(cp) < 0) {
-    perror("getcontext() reported an error");
-    exit(1);
-  }
+    // Try allocating the context's stack
+    void *stack = malloc(STACK_SIZE);
+    if (stack == NULL) {
+      perror("Could not allocate a new stack");
+      exit(1);
+    }
 
-  // Try allocating the context's stack
-  void *stack = malloc(STACK_SIZE);
-  if (stack == NULL) {
-    perror("Could not allocate a new stack");
-    exit(1);
-  }
+    controlBlock->context = cp;
+    controlBlock->state = READY;
 
-  controlBlock->context = cp;
-  controlBlock->state = READY;
+    // Modify the context
+    controlBlock->context -> uc_link = scheduler_context; // assign the successor context
+    controlBlock->context -> uc_stack.ss_sp = stack; // assign the context's stack
+    controlBlock->context -> uc_stack.ss_size = STACK_SIZE; // the size of the new stack
+    controlBlock->context -> uc_stack.ss_flags = 0;
 
-  // Modify the context
-  controlBlock->context -> uc_link = scheduler_context; // assign the successor context
-  controlBlock->context -> uc_stack.ss_sp = stack; // assign the context's stack
-  controlBlock->context -> uc_stack.ss_size = STACK_SIZE; // the size of the new stack
-  controlBlock->context -> uc_stack.ss_flags = 0;
+    // Try applying our modifications
+    errno = 0;
+    makecontext(controlBlock->context, (void *)function, 1, arg);
+    if (errno != 0) {
+      perror("makecontext() reported an error");
+      exit(1);
+    }
 
-  // Try applying our modifications
-  errno = 0;
-  makecontext(controlBlock->context, (void *)function, 1, arg);
-  if (errno != 0) {
-    perror("makecontext() reported an error");
-    exit(1);
-  }
+    controlBlock->counter = 0;
 
+    numThreads++;
+    controlBlock->id = numThreads; // save thread ID
+    *thread = controlBlock->id;
 
-  controlBlock->counter = 0;
+    add_to_front(runqueue, controlBlock);
+    // ^ Think controlBlock needs to be dynamically allocated...
+  printf("queue after create\n");
+  print_queue(runqueue);
 
-  // TODO: Assign a new thread ID to controlBlock.
-  numThreads++;
-  controlBlock->id = numThreads; // save thread ID
-  *thread = controlBlock->id;
-  currentThreadID = controlBlock->id;
-
-  // TODO: Enqueue thread onto a scheduler runqueue.
-  add_to_front(runqueue, controlBlock);
-  // ^ Think controlBlock needs to be dynamically allocated...
-  
-
+//  }
 
   return 0;
 };
@@ -85,13 +78,8 @@ void initialize() {
   firstThreadFlag = false;
   runqueue = (tcb_queue*) malloc(sizeof(tcb_queue));
   initialize_queue(runqueue);
-
-  /** ANNOYING OVERHEAD FOR CREATING A CONTEXT **/
-  // TODO: Create Scheduler context
   initialize_scheduler();
-  /** ANNOYING OVERHEAD FOR CREATING A CONTEXT **/
   init_main_thread(); // add the main thread to the scheduler
-
   initialize_timer();
 }
 
@@ -115,27 +103,21 @@ int mypthread_yield() {
       "save context of this thread to its control block" but after looking at the man pages for swap context, it seems that saves the
       current context into the first argument.
   */
-  // TODO: create scheduler context (probably in initializer function)
-
-	// YOUR CODE HERE
-	return 0;
+  return 0;
 };
 
 /* terminate a thread */
 // Also deallocate any dynamic memory created when you started this thread
 void mypthread_exit(void *value_ptr) {
-  // tcb* currentTCB = find_tcb_by_id(currentThreadID);
+  printf("Exit: thread %u with value %s\n", currentThread->id, (char *) value_ptr);
 
-  printf("Exiting thread %u with value %s\n", currentThread->id, (char *) value_ptr);
+  if (value_ptr != NULL) {
+    currentThread->returnValue = value_ptr;
+  }
 
   currentThread->state = DONE;
 
-  printf("Exiting: Thread %u's state is currently %d\n", currentThread->id, currentThread->state);
-
-  if (value_ptr != NULL) {
-    printf("We have an exit value!\n");
-    currentThread->returnValue = value_ptr;
-  }
+  printf("Exit: Thread %u's state is currently %d\n", currentThread->id, currentThread->state);
 
   // might have to call schedule? what should currentThread be after this point? Since it's now pointing
   // to a block of memory that is not in use
@@ -248,26 +230,10 @@ void init_main_thread() {
 
   controlBlock->context = cp;
   controlBlock->state = RUNNING;
-
-  // Modify the context
-  // controlBlock->context -> uc_link = NULL; // assign the successor context
-  // controlBlock->context -> uc_stack.ss_sp = stack; // assign the context's stack
-  // controlBlock->context -> uc_stack.ss_size = STACK_SIZE; // the size of the new stack
-  // controlBlock->context -> uc_stack.ss_flags = 0;
-
-  // Try applying our modifications
-  // errno = 0;
-  // makecontext(controlBlock.context, (void *)function, 1, arg);
-  // if (errno != 0) {
-  //   perror("makecontext() reported an error");
-  //   exit(1);
-  // }
-
   controlBlock->counter = 0;
   controlBlock->id = 0;
   numThreads = controlBlock->id;
 
-  // TODO: Enqueue thread onto a scheduler runqueue.
   currentThread = controlBlock;
   add_to_front(runqueue, controlBlock);
 }
@@ -309,16 +275,8 @@ static void schedule() {
 	// Invoke different actual scheduling algorithms
 	// according to policy (STCF or MLFQ)
 
-	// if (sched == STCF)
-	//		sched_stcf();
-	// else if (sched == MLFQ)
-	// 		sched_mlfq();
-
-	// YOUR CODE HERE
-
-// schedule policy
 #ifndef MLFQ
-	// Choose STCF
+	  // Choose STCF
     sched_stcf();
 #else
 	// Choose MLFQ
@@ -341,19 +299,12 @@ static void sched_stcf() {
       currentThread = pop_from_back(runqueue);
       currentThread -> state = RUNNING;
       printf("Scheduler: Thread %u's state is currently %d\n", currentThread->id, currentThread->state);
-      // If the minimum counter meets/exceeds the max quantum...
-      // if (currentThread -> counter >= MAX_COUNTER) {
-      //     // ...reset the thread's counter.
-      //     currentThread -> counter = 0;
-      // }
-      // Start recording the thread's runtime.
-  //    gettimeofday(&threadStartTime, NULL);
     }
 
-    // swap back to main context
-    printf("Switching out of the scheduler...\n");
-    swapcontext(scheduler_context, currentThread->context);
-  }
+  // swap back to main context
+  printf("Switching out of the scheduler...\n");
+  swapcontext(scheduler_context, currentThread->context);
+//  }
 }
 
 /* Preemptive MLFQ scheduling algorithm */
@@ -430,6 +381,8 @@ tcb* find_tcb_by_id(mypthread_t id) {
 }
 
 void move_min_to_back() {
+  printf("Reorganizing queue...\n");
+
   tcb_node* ptr = runqueue->front;
   int min = INT_MAX;
   // First find id of min node

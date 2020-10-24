@@ -17,8 +17,6 @@ static void* f1(void* arg) {
   char* return_statement_f1 = (char*) malloc(sizeof(strlen("f1 has returned") + 1));
   return_statement_f1 = "f1 has returned";
   mypthread_exit(return_statement_f1);
-
-  
 }
 
 int main(int argc, char **argv) {
