@@ -205,19 +205,7 @@ void init_main_thread() {
   tcb* controlBlock = (tcb*) malloc(sizeof(tcb));
 
   ucontext_t *cp = (ucontext_t*) malloc(sizeof(ucontext_t)); // a new context pointer
-
-  // Try to initialize context
-  // if (getcontext(cp) < 0) {
-  //   perror("getcontext() reported an error");
-  //   exit(1);
-  // }
-//  current_thread_context = cp; // THIS LINE IS PROBABLY WRONG. MIGHT LEAD TO INF LOOP
-  // Try allocating the context's stack
-  // void *stack = malloc(STACK_SIZE);
-  // if (stack == NULL) {
-  //   perror("Could not allocate a new stack");
-  //   exit(1);
-  // }
+  getcontext(cp); // populate cp with the current context
 
   controlBlock->context = cp;
   controlBlock->state = RUNNING;
