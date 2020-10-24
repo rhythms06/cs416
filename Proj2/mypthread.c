@@ -370,7 +370,12 @@ void move_min_to_back() {
   int min = INT_MAX;
   // First find id of min node
   while(ptr != NULL) {
-    if (ptr->data->counter < min && ptr->data->state == READY) {
+    if (ptr->data->counter < min &&
+        (
+          ptr->data->state == READY ||
+          (ptr->data->state == WAITING && ptr->data->waiting_on->state == DONE)
+        )
+        ) {
       min = ptr->data->counter;
     }
 		ptr = ptr->next;
