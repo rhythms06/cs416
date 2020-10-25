@@ -144,7 +144,7 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
     currentThread->waiting_on = waited_on_tcb;
 //    printf("Join: Thread %u's state is currently %s\n", waited_on_tcb->id, printState(waited_on_tcb->state));
 
-    if(waited_on_tcb->state != DONE) {
+    while(waited_on_tcb->state != DONE) {
       // wait for the thread to terminate
       currentThread->state = WAITING;
       printf("Join: Thread %u is now %s on thread %u\n",
