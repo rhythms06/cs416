@@ -286,24 +286,47 @@ static void sched_stcf() {
 //  printf("Scheduler: Thread %u is currently %s\n", currentThread->id, printState(currentThread->state));
     currentThread->counter++;
 
-    move_min_to_back();
-
-    print_queue(runqueue);
-
-    if (runqueue->back->data->counter < currentThread->counter) {
-      // enqueue old currentThread
-      currentThread -> state = READY;
-      add_to_front(runqueue, currentThread);
-      // dequeue from runqueue and make it new currentThread
-      currentThread = pop_from_back(runqueue);
-      currentThread -> state = RUNNING;
-      printf("Scheduler: Thread %u's state is currently %d\n", currentThread->id, currentThread->state);
+    // Set current thread, if RUNNING (not DONE/BLOCKED/WAITING), to READY
+    if (currentThread->state == RUNNING) {
+      currentThread->state = READY;
+      printf("Scheduler: OLD thread %u is now %s\n", currentThread->id, printState(currentThread->state));
     }
 
+    printf("Queue before rescheduling:\n");
+    print_queue(runqueue);
+
+    move_min_to_back();
+
+    // Set back of queue, if READY or WAITING (not DONE/BLOCKED), to RUNNING
+    if (runqueue->back->data->state == READY || runqueue->back->data->state == WAITING) {
+      currentThread = runqueue->back->data;
+      currentThread->state = RUNNING;
+      printf("Scheduler: NEW thread %u is now %s\n", currentThread->id, printState(currentThread->state));
+    }
+
+    printf("Rescheduled queue (NEW thread at bottom/back):\n");
+    print_queue(runqueue);
+
+//    if (runqueue->back->data->counter < currentThread->counter) {
+//      // enqueue old currentThread
+//      currentThread -> state = READY;
+//      printf("Scheduler: Thread %u is now %s\n", currentThread->id, printState(currentThread->state));
+//      // dequeue new currentThread
+//      currentThread = pop_from_back(runqueue);
+//      currentThread -> state = RUNNING;
+//      add_to_front(runqueue, currentThread);
+//      printf("Scheduler: Thread %u is now %s\n", currentThread->id, printState(currentThread->state));
+//    } else {
+//      printf("Queue need not be rescheduled!\n");
+//    }
+
   // swap back to main context
-  printf("Switching out of the scheduler...\n");
+  printf("Switching back to Thread %u...\n", currentThread->id);
   swapcontext(scheduler_context, currentThread->context);
   }
+  printf("only one thread left!\n");
+  printf("Switching out of the scheduler...\n");
+  swapcontext(scheduler_context, currentThread->context);
 }
 
 /* Preemptive MLFQ scheduling algorithm */
