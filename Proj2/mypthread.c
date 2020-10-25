@@ -77,7 +77,7 @@ int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
 
     add_to_front(runqueue, controlBlock);
     // ^ Think controlBlock needs to be dynamically allocated...
-  printf("queue after create\n");
+  printf("Node added to queue:\n");
   print_queue(runqueue);
 
 //  }
@@ -120,7 +120,7 @@ int mypthread_yield() {
 /* terminate a thread */
 // Also deallocate any dynamic memory created when you started this thread
 void mypthread_exit(void *value_ptr) {
-  printf("Exit: thread %u with value %s\n", currentThread->id, (char *) value_ptr);
+//  printf("Exit: thread %u with value %s\n", currentThread->id, (char *) value_ptr);
 
   if (value_ptr != NULL) {
     currentThread->returnValue = value_ptr;
@@ -128,7 +128,7 @@ void mypthread_exit(void *value_ptr) {
 
   currentThread->state = DONE;
 
-  printf("Exit: Thread %u's state is currently %d\n", currentThread->id, currentThread->state);
+  printf("Exit: Thread %u's state is now %s\n", currentThread->id, printState(currentThread->state));
 
   // might have to call schedule? what should currentThread be after this point? Since it's now pointing
   // to a block of memory that is not in use
@@ -141,8 +141,7 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
 
   if (waited_on_tcb != NULL) {
     currentThread->waiting_on = waited_on_tcb;
-    printf("Join: Thread %u is waiting on thread %u...\n", currentThread->id, waited_on_tcb->id);
-    printf("Join: Thread %u's state is currently %d\n", waited_on_tcb->id, waited_on_tcb->state);
+//    printf("Join: Thread %u's state is currently %s\n", waited_on_tcb->id, printState(waited_on_tcb->state));
 
     if(waited_on_tcb->state != DONE) {
       // wait for the thread to terminate
@@ -226,7 +225,7 @@ void init_main_thread() {
 
   currentThread = controlBlock;
   add_to_front(runqueue, controlBlock);
-  printf("Runqueue after init_main_thread:\n");
+  printf("Node added to queue:\n");
   print_queue(runqueue);
 }
 
@@ -375,7 +374,7 @@ tcb* find_tcb_by_id(mypthread_t id) {
 }
 
 void move_min_to_back() {
-  printf("Reorganizing queue...\n");
+//  printf("Reorganizing queue...\n");
 
   tcb_node* ptr = runqueue->front;
   int min = INT_MAX;
