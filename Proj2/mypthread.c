@@ -179,7 +179,7 @@ int mypthread_mutex_lock(mypthread_mutex_t *mutex) {
         // if the mutex is acquired successfully, enter the critical section
         // if acquiring mutex fails, push current thread into block list and //
         // context switch to the scheduler thread
-        if (__atomic_test_and_set (mutex->lock, 0) != true) {
+        if (__atomic_test_and_set(mutex->lock, 0) == true) {
           mutex->ownerControlBlock->state = BLOCKED;
           switch_to_scheduler(0);
         }
