@@ -355,6 +355,8 @@ void add_to_front(tcb_queue* queue, tcb* new_tcb) {
 	new_tcb_node->next = queue->front;
 	new_tcb_node->prev = NULL;
 
+	queue->size++;
+
 	if (queue->front == NULL) { // if queue is empty
 		queue->front = new_tcb_node;
 		queue->back = new_tcb_node;
