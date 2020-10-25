@@ -18,6 +18,17 @@ ucontext_t* current_thread_context;
 struct sigaction sa;
 struct itimerval timer;
 
+char* printState(enum state stateEnum) {
+  switch (stateEnum) {
+    case READY: return "READY [0]";
+    case WAITING: return "WAITING [1]";
+    case RUNNING: return "RUNNING [2]";
+    case DONE: return "DONE [3]";
+    case BLOCKED: return "BLOCKED [4]";
+    default: return "INVALID_STATE";
+  }
+}
+
 /* create a new thread (you can ignore attr) */
 int mypthread_create(mypthread_t * thread, pthread_attr_t * attr,
   void *(*function) (void*), void * arg) {

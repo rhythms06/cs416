@@ -37,9 +37,9 @@ typedef unsigned int mypthread_t;
 
 enum state {
     READY,
+    WAITING,
     RUNNING,
     DONE,
-    WAITING,
     BLOCKED
 };
 
