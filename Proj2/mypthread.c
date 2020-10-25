@@ -282,7 +282,8 @@ static void schedule() {
 
 /* Preemptive SJF (STCF) scheduling algorithm */
 static void sched_stcf() {
-  while(1) {
+  while(runqueue->size > 1) {
+//  printf("Scheduler: Thread %u is currently %s\n", currentThread->id, printState(currentThread->state));
     currentThread->counter++;
 
     move_min_to_back();
