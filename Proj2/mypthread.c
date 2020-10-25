@@ -132,7 +132,8 @@ void mypthread_exit(void *value_ptr) {
 
   // might have to call schedule? what should currentThread be after this point? Since it's now pointing
   // to a block of memory that is not in use
-  switch_to_scheduler(0);
+  printf("Switching to scheduler...\n");
+  swapcontext(currentThread->context, scheduler_context);
 }
 
 /* Wait for thread termination */
@@ -146,7 +147,10 @@ int mypthread_join(mypthread_t thread, void **value_ptr) {
     if(waited_on_tcb->state != DONE) {
       // wait for the thread to terminate
       currentThread->state = WAITING;
-      switch_to_scheduler(0);
+      printf("Join: Thread %u is now %s on thread %u\n",
+             currentThread->id, printState(currentThread->state), waited_on_tcb->id);
+      printf("Switching to scheduler...\n");
+      swapcontext(currentThread->context, scheduler_context);
     }
     // de-allocate any dynamic memory created by the joining thread
     //  free(waited_on_tcb->context);
@@ -234,7 +238,8 @@ void init_main_thread() {
 
 void switch_to_scheduler(int signum){
   printf("Switching to scheduler...\n");
-  swapcontext(currentThread->context, scheduler_context);
+//  swapcontext(currentThread->context, scheduler_context);
+  setcontext(scheduler_context);
 }
 
 void initialize_timer(){
