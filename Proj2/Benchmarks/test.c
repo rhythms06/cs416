@@ -12,22 +12,51 @@
  * This will not be graded.
  */
 
-static void* f1(void* arg) {
-  printf("Hi, I'm function 'f1' and I was given the arg '%s'\n", *(char**)arg);
-  char* return_statement_f1 = (char*) malloc(sizeof(strlen("f1 has returned") + 1));
-  return_statement_f1 = "f1 has returned";
-  mypthread_exit(return_statement_f1);
+mypthread_t tid[2];
+int counter;
+mypthread_mutex_t lock;
+
+void* f(void* arg) {
+  printf("Attempting thread execution...\n");
+  mypthread_mutex_lock(&lock);
+
+  /* CRITICAL SECTION */
+  unsigned long i = 0;
+  counter++;
+  printf("Thread %d is in the critical section...\n", counter + 1);
+  for(i = 0; i < (0xFFFFFFFF); i++); // dummy task
+  printf("Thread %d is done!\n", counter);
+  char* return_statement = "SUCCESS";
+  /* CRITICAL SECTION */
+  mypthread_mutex_unlock(&lock);
+  mypthread_exit(return_statement);
 }
 
 int main(int argc, char **argv) {
-	mypthread_t t1;
-	char* str = "f1's sole argument";
-	mypthread_create(&t1, NULL, &f1, &str);
-  printf("Main: Added thread %u to CPU.\n", t1);
+  int i = 0;
+  int err;
+
+  if (mypthread_mutex_init(&lock, NULL) != 0) {
+    printf("mypthread_mutex_init failed :(\n");
+    return 1;
+  }
+
+  while (i < 2) {
+    if (mypthread_create(&(tid[i]), NULL, &f, NULL) != 0) {
+      printf("mypthread_create failed: [%s]\n", strerror(err));
+    } else {
+      printf("Main: Added thread %d to CPU.\n", i + 1);
+    }
+    i++;
+  }
 
   void* returnValue;
+  mypthread_join(tid[0], &returnValue);
+  printf("Main: Thread 0 exited with the value: %s\n", returnValue);
+  mypthread_join(tid[1], &returnValue);
+  printf("Main: Thread 1 exited with the value: %s\n", returnValue);
 
-  mypthread_join(t1, &returnValue);
-  printf("Main: The thread exited with the value: %s\n", returnValue);
+  mypthread_mutex_destroy(&lock);
+
 	return 0;
 }
