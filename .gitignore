@@ -90,3 +90,8 @@ TODO
 
 ### IntelliJ IDEA ###
 .idea/
+
+# Project 2 Executables
+external_cal
+parallel_cal
+vector_multiply
