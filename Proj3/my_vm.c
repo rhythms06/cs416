@@ -1,5 +1,7 @@
 #include "my_vm.h"
 
+void* phys_mem;
+
 /*
 Function responsible for allocating and setting your physical memory
 */
@@ -7,10 +9,18 @@ void SetPhysicalMem() {
 
     //Allocate physical memory using mmap or malloc; this is the total size of
     //your memory you are simulating
-
+    phys_mem = malloc(MEMSIZE);
 
     //HINT: Also calculate the number of physical and virtual pages and allocate
     //virtual and physical bitmaps and initialize them
+    // # virtual pages equivalent to MAX_MEMSIZE / PGSIZE
+    // # physical pages equivalent to MEMSIZE / PGSIZE
+
+    // Initialize Virtual and Physical bitmap use the number of pages
+    // Look up bitmap implementations online!
+
+    // Initialize page directory (allocate using malloc, you can also use malloc for the page tables themselves)
+    // It's an array of size 2^(outer index)
 
 }
 
@@ -98,8 +108,10 @@ PageMap(pde_t *pgdir, void *va, void *pa)
 void *get_next_avail(int num_pages) {
 
     //Use virtual address bitmap to find the next free page
-}
 
+    // virtual address = index of bit * pagesize
+}
+// physical address = index of bit * pagesize + offset of the start of physical memory allocated
 
 /* Function responsible for allocating pages
 and used by the benchmark

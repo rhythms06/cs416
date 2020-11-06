@@ -17,9 +17,13 @@
 #define MEMSIZE 1024*1024*1024
 
 // Represents a page table entry
+// Domingo suggests
+// typedef void* pte_t
 typedef unsigned long pte_t;
 
 // Represents a page directory entry
+// Domingo suggests
+// typedef pte_t* pde_t
 typedef unsigned long pde_t;
 
 #define TLB_SIZE 120
