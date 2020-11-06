@@ -2,6 +2,7 @@
 #define MY_VM_H_INCLUDED
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 //Assume the address space is 32 bits, so the max memory size is 4GB
 //Page size is 4KB
@@ -43,5 +44,6 @@ void myfree(void *va, int size);
 void PutVal(void *va, void *val, int size);
 void GetVal(void *va, void *val, int size);
 void MatMult(void *mat1, void *mat2, int size, void *answer);
+void print_TLB_missrate();
 
 #endif
