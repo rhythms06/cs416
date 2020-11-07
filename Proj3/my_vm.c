@@ -4,6 +4,7 @@ void* phys_mem;
 bool first_call = true;
 pde_t* page_dir;
 int offset_bits, page_dir_bits, page_table_bits;
+int page_dir_size, page_table_size;
 /*
 Function responsible for allocating and setting your physical memory
 */
@@ -33,10 +34,10 @@ void SetPhysicalMem() {
     }
     page_table_bits = VPN_bits / 2;
 
-    int page_dir_size = (int) pow(2.0,  page_dir_bits);
-    int page_table_size = (int) pow(2.0, page_table_bits);
+    page_dir_size = (int) pow(2.0,  page_dir_bits);
+    page_table_size = (int) pow(2.0, page_table_bits);
     
-    page_dir = (pde_t*) malloc(sizeof(pde_t) * page_dir_size);
+    page_dir = (pde_t*) calloc(page_dir_size, sizeof(pde_t));
 
 }
 
@@ -114,7 +115,16 @@ PageMap(pde_t *pgdir, void *va, void *pa)
     /*HINT: Similar to Translate(), find the page directory (1st level)
     and page table (2nd-level) indices. If no mapping exists, set the
     virtual to physical mapping */
+    int pgdir_index = get_outer_dex(va);
+    int pgtbl_index = get_inner_dex(va);
 
+    if (pgdir[pgdir_index] == NULL) { // If no page table has been allocated yet at this index
+        pgdir[pgdir_index] = calloc(page_table_size, sizeof(pte_t)); // allocate one!
+    }
+    if (pgdir[pgdir_index][pgtbl_index] == NULL) { // if there is no mapping
+        pgdir[pgdir_index][pgtbl_index] = pa;
+        return 1;
+    }
     return -1;
 }
 
