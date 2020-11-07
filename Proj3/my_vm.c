@@ -3,7 +3,7 @@
 void* phys_mem;
 bool first_call = true;
 pde_t* page_dir;
-int offset, page_dir_bits, page_table_bits;
+int offset_bits, page_dir_bits, page_table_bits;
 /*
 Function responsible for allocating and setting your physical memory
 */
@@ -17,10 +17,10 @@ void SetPhysicalMem() {
     //virtual and physical bitmaps and initialize them
     // # virtual pages equivalent to MAX_MEMSIZE / PGSIZE
     // # physical pages equivalent to MEMSIZE / PGSIZE
-    offset = (int) log2(PGSIZE);
+    offset_bits = (int) log2(PGSIZE);
     // Initialize Virtual and Physical bitmap use the number of pages
     // Look up bitmap implementations online!
-    int VPN_bits = ADDRESS_BITS - offset;
+    int VPN_bits = ADDRESS_BITS - offset_bits;
     // Initialize page directory (allocate using malloc, you can also use malloc for the page tables themselves)
     // It's an array of size 2^(outer index)
     page_dir_bits;
@@ -197,4 +197,18 @@ void MatMult(void *mat1, void *mat2, int size, void *answer) {
     store the result to the "answer array"*/
 
 
+}
+
+
+unsigned int get_offset(void * va) {
+    unsigned int mask = (unsigned int) pow(2.0, offset_bits) - 1;
+    return ((unsigned int)va) & mask;
+}
+unsigned int get_inner_dex(void * va) {
+    unsigned int mask = (unsigned int) pow(2.0, page_table_bits);
+    return ((unsigned int) va >> offset_bits) & mask;
+}
+unsigned int get_outer_dex(void * va) {
+    unsigned int mask = (unsigned int) pow(2.0, page_dir_bits);
+    return ((unsigned int) va >> offset_bits + page_table_bits) & mask;
 }

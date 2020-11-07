@@ -50,5 +50,8 @@ void PutVal(void *va, void *val, int size);
 void GetVal(void *va, void *val, int size);
 void MatMult(void *mat1, void *mat2, int size, void *answer);
 void print_TLB_missrate();
+unsigned int get_offset(void * va);
+unsigned int get_inner_dex(void * va);
+unsigned int get_outer_dex(void * va);
 
 #endif
