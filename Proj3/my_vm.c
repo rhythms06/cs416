@@ -1,7 +1,7 @@
 #include "my_vm.h"
 
 void* phys_mem;
-
+boolean first_call = true;
 pde_t* page_dir;
 /*
 Function responsible for allocating and setting your physical memory
@@ -134,7 +134,10 @@ and used by the benchmark
 void *myalloc(unsigned int num_bytes) {
 
     //HINT: If the physical memory is not yet initialized, then allocate and initialize.
-
+    if (first_call) {
+        SetPhysicalMem();
+        first_call = false;
+    }
    /* HINT: If the page directory is not initialized, then initialize the
    page directory. Next, using get_next_avail(), check if there are free pages. If
    free pages are available, set the bitmaps and map a new page. Note, you will
