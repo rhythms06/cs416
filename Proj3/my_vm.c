@@ -1,8 +1,9 @@
 #include "my_vm.h"
 
 void* phys_mem;
-boolean first_call = true;
+bool first_call = true;
 pde_t* page_dir;
+int offset, page_dir_bits, page_table_bits;
 /*
 Function responsible for allocating and setting your physical memory
 */
@@ -16,14 +17,14 @@ void SetPhysicalMem() {
     //virtual and physical bitmaps and initialize them
     // # virtual pages equivalent to MAX_MEMSIZE / PGSIZE
     // # physical pages equivalent to MEMSIZE / PGSIZE
-    int offset = (int) log2(PGSIZE);
+    offset = (int) log2(PGSIZE);
     // Initialize Virtual and Physical bitmap use the number of pages
     // Look up bitmap implementations online!
     int VPN_bits = ADDRESS_BITS - offset;
     // Initialize page directory (allocate using malloc, you can also use malloc for the page tables themselves)
     // It's an array of size 2^(outer index)
-    int page_dir_bits;
-    int page_table_bits;
+    page_dir_bits;
+    page_table_bits;
 
     if (VPN_bits % 2 != 0) {
         page_dir_bits = VPN_bits / 2 - 1;
