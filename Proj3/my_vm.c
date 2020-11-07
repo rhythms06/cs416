@@ -95,10 +95,18 @@ pte_t * Translate(pde_t *pgdir, void *va) {
     //HINT: Get the Page directory index (1st level) Then get the
     //2nd-level-page table index using the virtual address.  Using the page
     //directory index and page table index get the physical address
-
-
+    int pgdir_index = get_outer_dex(va);
+    int pgtbl_index = get_inner_dex(va);
+    int offset = get_offset(va);
     //If translation not successfull
-    return NULL;
+    if (pgdir[pgdir_index] == NULL) { // If no page table has been allocated yet at this index
+        return NULL;
+    }
+    if (pgdir[pgdir_index][pgtbl_index] == NULL) { // if there is no mapping
+        return NULL;
+    }
+    void* pa = pgdir[pgdir_index][pgtbl_index];
+    return pa + offset;
 }
 
 
