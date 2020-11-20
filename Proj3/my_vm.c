@@ -83,19 +83,19 @@ The function takes a virtual address and page directories starting address and
 performs translation to return the physical address
 */
 pte_t * Translate(pde_t *pgdir, void *va) {
-    //HINT: Get the Page directory index (1st level) Then get the
-    //2nd-level-page table index using the virtual address.  Using the page
-    //directory index and page table index get the physical address
+    // Get page directory, page table, and offset indices using the virtual address
     int pgdir_index = get_outer_dex(va);
     int pgtbl_index = get_inner_dex(va);
     int offset = get_offset(va);
-    //If translation not successfull
-    if (pgdir[pgdir_index] == NULL) { // If no page table has been allocated yet at this index
+    // Return NULL if page table doesn't exist
+    if (pgdir[pgdir_index] == NULL) {
         return NULL;
     }
-    if (pgdir[pgdir_index][pgtbl_index] == NULL) { // if there is no mapping
+    // Return NULL if page table doesn't exist
+    if (pgdir[pgdir_index][pgtbl_index] == NULL) {
         return NULL;
     }
+    // Return the physical address
     void* pa = pgdir[pgdir_index][pgtbl_index];
     return pa + offset;
 }
@@ -213,7 +213,6 @@ void GetVal(void *va, void *val, int size) {
     If you are implementing TLB,  always check first the presence of translation
     in TLB before proceeding forward */
 
-
 }
 
 
@@ -230,7 +229,6 @@ void MatMult(void *mat1, void *mat2, int size, void *answer) {
     load each element and perform multiplication. Take a look at test.c! In addition to
     getting the values from two matrices, you will perform multiplication and
     store the result to the "answer array"*/
-
 
 }
 
