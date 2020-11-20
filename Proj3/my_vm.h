@@ -53,5 +53,6 @@ void print_TLB_missrate();
 unsigned int get_offset(void * va);
 unsigned int get_inner_dex(void * va);
 unsigned int get_outer_dex(void * va);
+void init_bitmaps();
 
 #endif

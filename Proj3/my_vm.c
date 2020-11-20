@@ -5,11 +5,13 @@ bool first_call = true;
 pde_t* page_dir;
 int offset_bits, page_dir_bits, page_table_bits;
 int page_dir_size, page_table_size;
+bool* phys_bitmap;
+bool* virt_bitmap;
 /*
 Function responsible for allocating and setting your physical memory
 */
 void SetPhysicalMem() {
-
+    init_bitmaps();
     //Allocate physical memory using mmap or malloc; this is the total size of
     //your memory you are simulating
     phys_mem = malloc(MEMSIZE);
@@ -229,4 +231,12 @@ unsigned int get_inner_dex(void * va) {
 unsigned int get_outer_dex(void * va) {
     unsigned int mask = (unsigned int) (pow(2.0, page_dir_bits));
     return ((unsigned int) va >> offset_bits + page_table_bits) & mask;
+}
+
+void init_bitmaps() {
+    phys_bitmap = (bool*) calloc(MEMSIZE, sizeof(bool));
+    virt_bitmap = (bool*) calloc(MAX_MEMSIZE, sizeof(bool));
+
+    phys_bitmap[0] = true; // First value is used as null value? not sure if this is the same for phys mem
+    virt_bitmap[0] = true; // first value used as null value
 }
