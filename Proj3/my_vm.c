@@ -7,19 +7,16 @@ int offset_bits, page_dir_bits, page_table_bits;
 int page_dir_size, page_table_size;
 bool* phys_bitmap;
 bool* virt_bitmap;
+
 /*
 Function responsible for allocating and setting your physical memory
 */
 void SetPhysicalMem() {
+    // Initialize physical and virtual page bitmaps
     init_bitmaps();
-    //Allocate physical memory using mmap or malloc; this is the total size of
-    //your memory you are simulating
+    // Allocate physical memory using malloc
     phys_mem = malloc(MEMSIZE);
 
-    //HINT: Also calculate the number of physical and virtual pages and allocate
-    //virtual and physical bitmaps and initialize them
-    // # virtual pages equivalent to MAX_MEMSIZE / PGSIZE
-    // # physical pages equivalent to MEMSIZE / PGSIZE
     offset_bits = (int) log2(PGSIZE);
     // Initialize Virtual and Physical bitmap use the number of pages
     // Look up bitmap implementations online!
