@@ -257,9 +257,11 @@ unsigned int get_outer_dex(void * va) {
 }
 
 void init_bitmaps() {
-    phys_bitmap = (bool*) calloc(MEMSIZE, sizeof(bool));
-    virt_bitmap = (bool*) calloc(MAX_MEMSIZE, sizeof(bool));
-
-    phys_bitmap[0] = true; // First value is used as null value? not sure if this is the same for phys mem
-    virt_bitmap[0] = true; // first value used as null value
+    // Initialize bitmap of (MEMSIZE / PGSIZE) physical pages
+    phys_bitmap = (bool*) calloc(MEMSIZE / PGSIZE, sizeof(bool));
+    // Initialize bitmap of (MAX_MEMSIZE / PGSIZE) virtual pages
+    virt_bitmap = (bool*) calloc(MAX_MEMSIZE / PGSIZE, sizeof(bool));
+    // Set physical/virtual "failure indicators" to false
+    phys_bitmap[0] = false;
+    virt_bitmap[0] = false;
 }
