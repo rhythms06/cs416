@@ -110,18 +110,15 @@ virtual address is not present, then a new entry will be added
 int
 PageMap(pde_t *pgdir, void *va, void *pa)
 {
-
-    /*HINT: Similar to Translate(), find the page directory (1st level)
-    and page table (2nd-level) indices. If no mapping exists, set the
-    virtual to physical mapping */
+    // Get page directory and table indices
     int pgdir_index = get_outer_dex(va);
     int pgtbl_index = get_inner_dex(va);
 
-    if (pgdir[pgdir_index] == NULL) { // If no page table has been allocated yet at this index
-        pgdir[pgdir_index] = calloc(page_table_size, sizeof(pte_t)); // allocate one!
+    if (pgdir[pgdir_index] == NULL) { // If there's no page table here...
+        pgdir[pgdir_index] = calloc(page_table_size, sizeof(pte_t)); // ...allocate one!
     }
-    if (pgdir[pgdir_index][pgtbl_index] == NULL) { // if there is no mapping
-        pgdir[pgdir_index][pgtbl_index] = pa;
+    if (pgdir[pgdir_index][pgtbl_index] == NULL) { // If there's no table entry here...
+        pgdir[pgdir_index][pgtbl_index] = pa; //...add one!
         return 1;
     }
     return -1;
