@@ -219,14 +219,14 @@ void MatMult(void *mat1, void *mat2, int size, void *answer) {
 
 
 unsigned int get_offset(void * va) {
-    unsigned int mask = (unsigned int) pow(2.0, offset_bits) - 1;
+    unsigned int mask = (unsigned int) (pow(2.0, offset_bits) - 1);
     return ((unsigned int)va) & mask;
 }
 unsigned int get_inner_dex(void * va) {
-    unsigned int mask = (unsigned int) pow(2.0, page_table_bits);
+    unsigned int mask = (unsigned int) (pow(2.0, page_table_bits));
     return ((unsigned int) va >> offset_bits) & mask;
 }
 unsigned int get_outer_dex(void * va) {
-    unsigned int mask = (unsigned int) pow(2.0, page_dir_bits);
+    unsigned int mask = (unsigned int) (pow(2.0, page_dir_bits));
     return ((unsigned int) va >> offset_bits + page_table_bits) & mask;
 }
