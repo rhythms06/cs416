@@ -3,7 +3,6 @@
 *.d
 
 ### Test files ###
-test.c
 test
 
 # Object files
