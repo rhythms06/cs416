@@ -144,22 +144,24 @@ PageMap(pde_t *pgdir, void *va, void *pa)
 void *get_next_avail(int num_pages) {
 
     //Use virtual address bitmap to find the next free page
-    unsigned int start_ptr, end_ptr;
-    end_ptr = num_pages;
-    bool found_block = false;
+    unsigned int start_ptr, end_ptr; // when these pointers are at the start and end of a free block of contig pages
+    // Then will be done with the algorithm
+    end_ptr = num_pages; 
+    bool found_block = false; // Assume we have not found a free block yet
     for (start_ptr = 0; start_ptr < MAX_MEMSIZE; ) {
         int i;
         for(i = start_ptr; i < end_ptr && i < MAX_MEMSIZE; i++) {
 
-            if (virt_bitmap[i] == true) {
-                start_ptr = i + 1;
+            if (virt_bitmap[i] == true) { // This block is not contiguous since there is a page in use
+                start_ptr = i + 1; // Move start pointer to the page after the page in use
                 end_ptr = start_ptr + num_pages;
+                break; // Stop looking in this particular block of memory
             }
-            if (i == end_ptr - 1 && virt_bitmap[i] == false) {
-                found_block = true;
+            if (i == end_ptr - 1 && virt_bitmap[i] == false) { // If we are at the end pointer and the end pointer is free
+                found_block = true; // Then if we haven't been stopped yet, our block is free all the way!
                 break;
             }
-
+            // WARNING: this might infinitely loop I haven't checked it yet
         }
 
         if (found_block) {
