@@ -136,15 +136,17 @@ void *get_next_avail(int num_pages) {
     unsigned int start_ptr, end_ptr; // when these pointers are at the start and end of a free block of contig pages
     // Then will be done with the algorithm
     end_ptr = num_pages; 
+    start_ptr = 0;
     bool found_block = false; // Assume we have not found a free block yet
-    for (start_ptr = 0; start_ptr < MAX_MEMSIZE; ) {
+    for (start_ptr = 0; start_ptr < MAX_MEMSIZE / PGSIZE; ) {
         int i;
         for(i = start_ptr; i < end_ptr && i < MAX_MEMSIZE; i++) {
 
             if (virt_bitmap[i] == true) { // This block is not contiguous since there is a page in use
                 start_ptr = i + 1; // Move start pointer to the page after the page in use
                 end_ptr = start_ptr + num_pages;
-                break; // Stop looking in this particular block of memory
+                i = start_ptr;
+                continue; // Stop looking in this particular block of memory
             }
             if (i == end_ptr - 1 && virt_bitmap[i] == false) { // If we are at the end pointer and the end pointer is free
                 found_block = true; // Then if we haven't been stopped yet, our block is free all the way!
@@ -158,6 +160,10 @@ void *get_next_avail(int num_pages) {
         }
     }
     // virtual address = index of bit * pagesize
+    while (start_ptr < end_ptr) {
+        virt_bitmap[start_ptr] = true; // Set the whole block to in use
+        start_ptr++;
+    }
     return (void *) (start_ptr * PGSIZE);
 }
 // physical address = index of bit * pagesize + offset of the start of physical memory allocated
@@ -172,7 +178,7 @@ void *myalloc(unsigned int num_bytes) {
         SetPhysicalMem();
         first_call = false;
     }
-    int num_pages = num_bytes / PGSIZE;
+    int num_pages = (int) ceil(((float)num_bytes) / ((float) PGSIZE));
     pte_t next_page = get_next_avail(num_pages); // Get next available free page 
    /* HINT: If the page directory is not initialized, then initialize the
    page directory. Next, using get_next_avail(), check if there are free pages. If
