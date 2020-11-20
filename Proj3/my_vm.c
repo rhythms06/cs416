@@ -144,8 +144,30 @@ PageMap(pde_t *pgdir, void *va, void *pa)
 void *get_next_avail(int num_pages) {
 
     //Use virtual address bitmap to find the next free page
+    unsigned int start_ptr, end_ptr;
+    end_ptr = num_pages;
+    bool found_block = false;
+    for (start_ptr = 0; start_ptr < MAX_MEMSIZE; ) {
+        int i;
+        for(i = start_ptr; i < end_ptr && i < MAX_MEMSIZE; i++) {
 
+            if (virt_bitmap[i] == true) {
+                start_ptr = i + 1;
+                end_ptr = start_ptr + num_pages;
+            }
+            if (i == end_ptr - 1 && virt_bitmap[i] == false) {
+                found_block = true;
+                break;
+            }
+
+        }
+
+        if (found_block) {
+            break;
+        }
+    }
     // virtual address = index of bit * pagesize
+    return (void *) (start_ptr * PGSIZE);
 }
 // physical address = index of bit * pagesize + offset of the start of physical memory allocated
 
@@ -159,6 +181,8 @@ void *myalloc(unsigned int num_bytes) {
         SetPhysicalMem();
         first_call = false;
     }
+    int num_pages = num_bytes / PGSIZE;
+    pte_t next_page = get_next_avail(num_pages); // Get next available free page 
    /* HINT: If the page directory is not initialized, then initialize the
    page directory. Next, using get_next_avail(), check if there are free pages. If
    free pages are available, set the bitmaps and map a new page. Note, you will
