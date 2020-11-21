@@ -199,12 +199,19 @@ void *myalloc(unsigned int num_bytes) {
     }
     int num_pages = (int) ceil(((float)num_bytes) / ((float) PGSIZE));
     pte_t next_page = get_next_avail(num_pages); // Get next available free page 
+    unsigned int i;
+    pte_t current_page_addr;
+    for (i = 0; i < num_pages; i++) {
+        current_page_addr = next_page + (i * PGSIZE);
+        void* pa = get_next_avail_phys();
+        PageMap(page_dir, current_page_addr, pa);
+    }
    /* HINT: If the page directory is not initialized, then initialize the
    page directory. Next, using get_next_avail(), check if there are free pages. If
    free pages are available, set the bitmaps and map a new page. Note, you will
    have to mark which physical pages are used. */
 
-    return NULL;
+    return next_page;
 }
 
 /*
