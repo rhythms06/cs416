@@ -224,9 +224,14 @@ void myfree(void *va, int size) {
 
     // Free the memory block!
     for (int i = 0; i < size; i += PGSIZE) {
+        // Get physical address
+        void * pa = page_dir[get_outer_dex(va + i)][get_inner_dex(va + i)];
         // Free the current page.
         page_dir[get_outer_dex(va + i)][get_inner_dex(va + i)] = NULL;
         // TODO: Get bitmap indices.
+        // This gets bitmap indices: ((unsigned int) va) / PGSIZE
+        virt_bitmap[((unsigned int)va + i) / PGSIZE] = false;
+        phys_bitmap[(unsigned int)pa / PGSIZE] = false;
         // TODO: Set bitmap indices to false.
     }
 
