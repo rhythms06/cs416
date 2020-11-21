@@ -177,7 +177,10 @@ void* get_next_avail_phys() {
     // If i is less than the bitmap length, then...
     if (i < MEMSIZE / PGSIZE) {
         // ...an available page was found,
-        // and its address is (i * page size + starting address of physical memory)
+        // and its address is (i * page size + starting address of physical memory)!
+        // Mark the page as occupied...
+        phys_bitmap[i] = true;
+        // ...and return its pointer.
         return (void *) (i * PGSIZE + phys_mem);
     }
     // Else, all pages are occupied.
