@@ -215,34 +215,30 @@ void *myalloc(unsigned int num_bytes) {
 }
 
 /*
- * Responsible for releasing one or more memory pages using virtual address (va)
+ * If the memory block [va, va + size] can be freed, then free it and return 1.
+ * Else, return -1.
 */
-void myfree(void *va, int size) {
-    //Free the page table entries starting from this virtual address (va)
-    // Also mark the pages free in the bitmap
-
+int myfree(void *va, int size) {
     // Check if the memory block [va, va + size] can be freed
     for (int i = 0; i < size; i += PGSIZE) {
         if (page_dir[get_outer_dex(va + i)][get_inner_dex(va + i)] == NULL) {
             // Found a NULL page, which means the block can't be freed.
-            return;
+            // Return -1 to indicate failure.
+            return -1;
         }
     }
-
     // Free the memory block!
     for (int i = 0; i < size; i += PGSIZE) {
-        // Get physical address
+        // Get physical address of the current page.
         void * pa = page_dir[get_outer_dex(va + i)][get_inner_dex(va + i)];
         // Free the current page.
         page_dir[get_outer_dex(va + i)][get_inner_dex(va + i)] = NULL;
-        // TODO: Get bitmap indices.
-        // This gets bitmap indices: ((unsigned int) va) / PGSIZE
+        // Mark the page as unoccupied in both bitmaps.
         virt_bitmap[((unsigned int)va + i) / PGSIZE] = false;
-        phys_bitmap[(unsigned int)pa / PGSIZE] = false;
-        // TODO: Set bitmap indices to false.
+        phys_bitmap[((unsigned int)(pa - phys_mem))/ PGSIZE] = false;
     }
-
-    // TODO: Report success.
+    // Return 1 upon success.
+    return 1;
 }
 
 
