@@ -207,13 +207,30 @@ void *myalloc(unsigned int num_bytes) {
     return NULL;
 }
 
-/* Responsible for releasing one or more memory pages using virtual address (va)
+/*
+ * Responsible for releasing one or more memory pages using virtual address (va)
 */
 void myfree(void *va, int size) {
-
     //Free the page table entries starting from this virtual address (va)
     // Also mark the pages free in the bitmap
-    //Only free if the memory from "va" to va+size is valid
+
+    // Check if the memory block [va, va + size] can be freed
+    for (int i = 0; i < size; i += PGSIZE) {
+        if (page_dir[get_outer_dex(va + i)][get_inner_dex(va + i)] == NULL) {
+            // Found a NULL page, which means the block can't be freed.
+            return;
+        }
+    }
+
+    // Free the memory block!
+    for (int i = 0; i < size; i += PGSIZE) {
+        // Free the current page.
+        page_dir[get_outer_dex(va + i)][get_inner_dex(va + i)] = NULL;
+        // TODO: Get bitmap indices.
+        // TODO: Set bitmap indices to false.
+    }
+
+    // TODO: Report success.
 }
 
 
