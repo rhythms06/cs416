@@ -4,8 +4,8 @@
 #define SIZE 5
 
 void main() {
-    void *p = myalloc(10);
-    p = myalloc(5);
+    void *p = myalloc(4ULL*1024*1024*1024 - 1);
+    p = myalloc(1);
 }
 
 int main2() {

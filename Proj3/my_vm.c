@@ -142,7 +142,7 @@ void *get_next_avail(int num_pages) {
             if (virt_bitmap[i] == true) { // This block is not contiguous since there is a page in use
                 start_ptr = i + 1; // Move start pointer to the page after the page in use
                 end_ptr = start_ptr + num_pages;
-                i = start_ptr;
+                i = start_ptr - 1; // start i at the new start pointer
                 continue; // Stop looking in this particular block of memory
             }
             if (i == end_ptr - 1 && virt_bitmap[i] == false) { // If we are at the end pointer and the end pointer is free
