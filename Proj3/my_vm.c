@@ -163,7 +163,26 @@ void *get_next_avail(int num_pages) {
     }
     return (void *) (start_ptr * PGSIZE);
 }
-// physical address = index of bit * pagesize + offset of the start of physical memory allocated
+
+/*
+ * Returns pointer to next available physical page, or NULL if none exist.
+ */
+void* get_next_avail_phys() {
+    // Initialize return page index
+    unsigned int i = 1;
+    // Look for next available physical page
+    while (phys_bitmap[i] == true && i < MEMSIZE / PGSIZE) {
+        i++;
+    }
+    // If i is less than the bitmap length, then...
+    if (i < MEMSIZE / PGSIZE) {
+        // ...an available page was found,
+        // and its address is (i * page size + starting address of physical memory)
+        return (void *) (i * PGSIZE + phys_mem);
+    }
+    // Else, all pages are occupied.
+    return NULL;
+}
 
 /* Function responsible for allocating pages
 and used by the benchmark
