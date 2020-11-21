@@ -113,7 +113,6 @@ PageMap(pde_t *pgdir, void *va, void *pa)
     // Get page directory and table indices
     int pgdir_index = get_outer_dex(va);
     int pgtbl_index = get_inner_dex(va);
-
     if (pgdir[pgdir_index] == NULL) { // If there's no page table here...
         pgdir[pgdir_index] = calloc(page_table_size, sizeof(pte_t)); // ...allocate one!
     }
@@ -121,14 +120,15 @@ PageMap(pde_t *pgdir, void *va, void *pa)
         pgdir[pgdir_index][pgtbl_index] = pa; //...add one!
         return 1;
     }
+    // Return -1 if a physical address already exists at the given table index.
     return -1;
 }
 
 
-/*Function that gets the next available page
+/*
+ * Function that gets the next available virtual page
 */
 void *get_next_avail(int num_pages) {
-
     //Use virtual address bitmap to find the next free page
     unsigned int start_ptr, end_ptr; // when these pointers are at the start and end of a free block of contig pages
     // Then will be done with the algorithm
