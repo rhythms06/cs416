@@ -4,8 +4,8 @@
 #define SIZE 5
 
 void main() {
-    void *p = myalloc(4ULL*1024*1024*1024 - 1);
-    p = myalloc(1);
+    SetPhysicalMem();
+    printf("%u \n", get_offset((void*)0x1100));
 }
 
 int main2() {
