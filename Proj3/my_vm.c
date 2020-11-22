@@ -265,10 +265,20 @@ void PutVal(void *va, void *val, int size) {
     }
 
     memcpy((void*)(pa + offset), val, PGSIZE - offset); // copy for initial chunk
-    // while (size > 0) {
-    //     int chunk_size = 
-    //     memcpy((void*)(pa + offset), val, size);
-    // }
+    unsigned int size_left = size - (PGSIZE - offset);
+    va = va - offset + PGSIZE;
+    val = val - offset + PGSIZE;
+    while (size_left > 0) {
+        unsigned int size_to_copy = size_left;
+        if (size_left > PGSIZE) {
+            size_to_copy = PGSIZE;
+        }
+        size_left -= size_to_copy;
+        pa = Translate(page_dir, va);
+        memcpy(pa, val, size_to_copy);
+        va += PGSIZE;
+        val += PGSIZE;
+    }
 
 }
 
