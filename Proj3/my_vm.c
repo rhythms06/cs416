@@ -290,8 +290,6 @@ argument representing the number of rows and columns. After performing matrix
 multiplication, copy the result to answer.
 */
 void MatMult(void *mat1, void *mat2, int size, void *answer) {
-    // Allocate a 400-byte result matrix
-    answer = myalloc(100*4);
     // Populate answer with the product of mat1 and mat2
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
