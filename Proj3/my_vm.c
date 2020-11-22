@@ -3,6 +3,7 @@
 void* phys_mem;
 bool first_call = true;
 pde_t* page_dir;
+pte_t* tlb;
 int offset_bits, page_dir_bits, page_table_bits;
 int page_dir_size, page_table_size;
 bool* phys_bitmap;
@@ -34,8 +35,8 @@ void SetPhysicalMem() {
 
 
 /*
- * Part 2: Add a virtual to physical page translation to the TLB.
- * Feel free to extend the function arguments or return type.
+ * Adds a virtual-page-to-physical-page address translation to the TLB.
+ * Returns 1 on success and -1 on failure.
  */
 int
 add_TLB(void *va, void *pa)
@@ -290,8 +291,6 @@ argument representing the number of rows and columns. After performing matrix
 multiplication, copy the result to answer.
 */
 void MatMult(void *mat1, void *mat2, int size, void *answer) {
-    // Allocate a 400-byte result matrix
-    answer = myalloc(100*4);
     // Populate answer with the product of mat1 and mat2
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
