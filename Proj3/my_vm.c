@@ -158,9 +158,10 @@ void *get_next_avail(int num_pages) {
         }
     }
     // virtual address = index of bit * pagesize
-    while (start_ptr < end_ptr) {
-        virt_bitmap[start_ptr] = true; // Set the whole block to in use
-        start_ptr++;
+    int bitmap_indx = start_ptr;
+    while (bitmap_indx < end_ptr) {
+        virt_bitmap[bitmap_indx] = true; // Set the whole block to in use
+        bitmap_indx++;
     }
     return (void *) (start_ptr * PGSIZE);
 }
