@@ -58,6 +58,7 @@ check_TLB(void *va) {
 
     /* Part 2: TLB lookup code here */
 
+    return NULL;
 }
 
 

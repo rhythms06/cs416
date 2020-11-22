@@ -1,7 +1,7 @@
 
 #include "../my_vm.h"
 
-#define SIZE 2
+#define SIZE 5
 
 // void main() {
 //     void* p = myalloc(4096 + 4096 + 4);
@@ -27,7 +27,9 @@ int main() {
 
     printf("Storing integers to generate a SIZExSIZE matrix\n");
     for (i = 0; i < SIZE; i++) {
+        x = j + 1;
         for (j = 0; j < SIZE; j++) {
+            x = j + 1;
             address_a = (unsigned int)a + ((i * SIZE * sizeof(int))) + (j * sizeof(int));
             address_b = (unsigned int)b + ((i * SIZE * sizeof(int))) + (j * sizeof(int));
             PutVal((void *)address_a, &x, sizeof(int));
