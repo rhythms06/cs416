@@ -3,7 +3,7 @@
 void* phys_mem;
 bool first_call = true;
 pde_t* page_dir;
-pte_t* tlb;
+struct tlb* translation_cache;
 int offset_bits, page_dir_bits, page_table_bits;
 int page_dir_size, page_table_size;
 bool* phys_bitmap;
