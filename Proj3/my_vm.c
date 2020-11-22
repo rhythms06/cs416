@@ -292,6 +292,38 @@ void GetVal(void *va, void *val, int size) {
     If you are implementing TLB,  always check first the presence of translation
     in TLB before proceeding forward */
 
+        /* HINT: Using the virtual address and Translate(), find the physical page. Copy
+       the contents of "val" to a physical page. NOTE: The "size" value can be larger
+       than one page. Therefore, you may have to find multiple pages using Translate()
+       function.*/
+    //int num_pages = (int) ceil(((float)num_bytes) / ((float) PGSIZE));
+    unsigned int outer_indx = get_outer_dex(va);
+    unsigned int inner_indx = get_inner_dex(va);
+    unsigned int offset = get_offset(va);
+
+    pte_t pa = page_dir[outer_indx][inner_indx];
+
+    if (offset + size <= PGSIZE) { // The easy case where we are contained to one page
+        memcpy(val, (void*)(pa + offset), size);
+        return;
+    }
+
+    memcpy(val, (void*)(pa + offset), PGSIZE - offset); // copy for initial chunk
+    unsigned int size_left = size - (PGSIZE - offset);
+    va = va - offset + PGSIZE;
+    val = val - offset + PGSIZE;
+    while (size_left > 0) {
+        unsigned int size_to_copy = size_left;
+        if (size_left > PGSIZE) {
+            size_to_copy = PGSIZE;
+        }
+        size_left -= size_to_copy;
+        pa = Translate(page_dir, va);
+        memcpy(val, pa, size_to_copy);
+        va += PGSIZE;
+        val += PGSIZE;
+    }
+
 }
 
 

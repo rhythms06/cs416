@@ -1,14 +1,16 @@
 
 #include "../my_vm.h"
 
-#define SIZE 5
+#define SIZE 2
 
-void main() {
-    SetPhysicalMem();
-    printf("%u \n", get_offset((void*)0x1100));
-}
+// void main() {
+//     void* p = myalloc(4096 + 4096 + 4);
+//     char* c = (char*) malloc(4096 + 4096 + 4);
 
-int main2() {
+//     PutVal(p, c, 4096 + 4096 + 4);
+// }
+
+int main() {
 
     printf("Allocating three arrays of 400 bytes\n");
     void *a = myalloc(100*4);
