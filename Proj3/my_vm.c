@@ -34,8 +34,8 @@ void SetPhysicalMem() {
 
 
 /*
- * Part 2: Add a virtual to physical page translation to the TLB.
- * Feel free to extend the function arguments or return type.
+ * Adds a virtual-page-to-physical-page address translation to the TLB.
+ * Returns 1 on success and -1 on failure.
  */
 int
 add_TLB(void *va, void *pa)
