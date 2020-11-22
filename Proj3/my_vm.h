@@ -29,12 +29,15 @@ typedef pte_t* pde_t;
 
 #define TLB_SIZE 120
 
-//Structure to represents TLB
+// The structure of a TLB entry
 struct tlb {
-
-    //Assume your TLB is a direct mapped TLB of TBL_SIZE (entries)
-    // You must also define wth TBL_SIZE in this file.
-    //Assume each bucket to be 4 bytes
+    // set to 1 if holding a valid translation, 0 if not.
+    int valid;
+    // a virt_bitmap index
+    int virtual_page_number;
+    // a phys_bitmap index
+    int physical_page_number;
+    // Assume each bucket to be 4 bytes (???)
 };
 struct tlb tlb_store;
 
