@@ -96,7 +96,7 @@ check_TLB(void *va) {
 void
 print_TLB_missrate()
 {
-    double miss_rate = 0;
+    double miss_rate = (float) miss_num / (float) (miss_num + hit_num);
 
     /*Part 2 Code here to calculate and print the TLB miss rate*/
 
@@ -186,6 +186,9 @@ void *get_next_avail(int num_pages) {
             break;
         }
     }
+    if (!found_block) {
+        return NULL;
+    }
     // virtual address = index of bit * pagesize
     int bitmap_indx = start_ptr;
     while (bitmap_indx < end_ptr) {
@@ -230,6 +233,10 @@ void *myalloc(unsigned int num_bytes) {
     }
     int num_pages = (int) ceil(((float)num_bytes) / ((float) PGSIZE));
     pte_t next_page = get_next_avail(num_pages); // Get next available free page 
+    if (next_page == NULL) {
+        pthread_mutex_unlock(&lock);
+        return NULL;
+    }
     unsigned int i;
     pte_t current_page_addr;
     for (i = 0; i < num_pages; i++) {

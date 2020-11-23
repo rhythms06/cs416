@@ -81,7 +81,9 @@ int main() {
     clock_t end = clock();
     double runtime = (double)(end - start) / CLOCKS_PER_SEC;
     printf("Total runtime: %.6f seconds\n", runtime);
-
+    if (USE_TLB) {
+        print_TLB_missrate();
+    }
     return 0;
 }
 
