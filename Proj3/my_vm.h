@@ -1,5 +1,6 @@
 #ifndef MY_VM_H_INCLUDED
 #define MY_VM_H_INCLUDED
+#include <pthread.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>

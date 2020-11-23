@@ -13,6 +13,8 @@ int page_dir_size, page_table_size;
 bool* phys_bitmap;
 bool* virt_bitmap;
 
+pthread_mutex_t lock;
+
 /*
 Function responsible for allocating and setting your physical memory
 */
@@ -22,6 +24,12 @@ void SetPhysicalMem() {
     cache_front = NULL;
     cache_back = NULL;
     cache_size = 0;
+
+    // Initialize Mutex
+    if (pthread_mutex_init(&lock, NULL) != 0) { 
+        printf("\n mutex init has failed\n"); 
+    } 
+
     // Allocate physical memory using malloc
     phys_mem = malloc(MEMSIZE);
     // Calculate number of page directory, page table, and offset bits
@@ -208,7 +216,7 @@ void* get_next_avail_phys() {
 and used by the benchmark
 */
 void *myalloc(unsigned int num_bytes) {
-
+    pthread_mutex_lock(&lock);
     //HINT: If the physical memory is not yet initialized, then allocate and initialize.
     if (first_call) {
         SetPhysicalMem();
@@ -228,6 +236,7 @@ void *myalloc(unsigned int num_bytes) {
    free pages are available, set the bitmaps and map a new page. Note, you will
    have to mark which physical pages are used. */
 
+    pthread_mutex_unlock(&lock);
     return next_page;
 }
 
@@ -236,11 +245,13 @@ void *myalloc(unsigned int num_bytes) {
  * Else, return -1.
 */
 int myfree(void *va, int size) {
+    pthread_mutex_lock(&lock);
     // Check if the memory block [va, va + size] can be freed
     for (int i = 0; i < size; i += PGSIZE) {
         if (page_dir[get_outer_dex(va + i)][get_inner_dex(va + i)] == NULL) {
             // Found a NULL page, which means the block can't be freed.
             // Return -1 to indicate failure.
+            pthread_mutex_unlock(&lock);
             return -1;
         }
     }
@@ -254,6 +265,9 @@ int myfree(void *va, int size) {
         virt_bitmap[((unsigned int)va + i) / PGSIZE] = false;
         phys_bitmap[((unsigned int)(pa - phys_mem))/ PGSIZE] = false;
     }
+
+    pthread_mutex_unlock(&lock);
+
     // Return 1 upon success.
     return 1;
 }
@@ -263,6 +277,9 @@ int myfree(void *va, int size) {
  * memory pages using virtual address (va)
 */
 void PutVal(void *va, void *val, int size) {
+
+    pthread_mutex_lock(&lock);
+
     /* HINT: Using the virtual address and Translate(), find the physical page. Copy
        the contents of "val" to a physical page. NOTE: The "size" value can be larger
        than one page. Therefore, you may have to find multiple pages using Translate()
@@ -286,6 +303,7 @@ void PutVal(void *va, void *val, int size) {
 
     if (offset + size <= PGSIZE) { // The easy case where we are contained to one page
         memcpy((void*)(pa), val, size);
+        pthread_mutex_unlock(&lock);
         return;
     }
 
@@ -313,6 +331,7 @@ void PutVal(void *va, void *val, int size) {
         va += PGSIZE;
         val += PGSIZE;
     }
+    pthread_mutex_unlock(&lock);
 
 }
 
@@ -320,15 +339,12 @@ void PutVal(void *va, void *val, int size) {
 /*Given a virtual address, this function copies the contents of the page to val*/
 void GetVal(void *va, void *val, int size) {
 
+    pthread_mutex_lock(&lock);
     /* HINT: put the values pointed to by "va" inside the physical memory at given
     "val" address. Assume you can access "val" directly by derefencing them.
     If you are implementing TLB,  always check first the presence of translation
     in TLB before proceeding forward */
 
-        /* HINT: Using the virtual address and Translate(), find the physical page. Copy
-       the contents of "val" to a physical page. NOTE: The "size" value can be larger
-       than one page. Therefore, you may have to find multiple pages using Translate()
-       function.*/
     //int num_pages = (int) ceil(((float)num_bytes) / ((float) PGSIZE));
     unsigned int outer_indx = get_outer_dex(va);
     unsigned int inner_indx = get_inner_dex(va);
@@ -338,6 +354,7 @@ void GetVal(void *va, void *val, int size) {
 
     if (offset + size <= PGSIZE) { // The easy case where we are contained to one page
         memcpy(val, (void*)(pa + offset), size);
+        pthread_mutex_unlock(&lock);
         return;
     }
 
@@ -356,7 +373,7 @@ void GetVal(void *va, void *val, int size) {
         va += PGSIZE;
         val += PGSIZE;
     }
-
+    pthread_mutex_unlock(&lock);
 }
 
 
