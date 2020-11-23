@@ -121,9 +121,17 @@ performs translation to return the physical address
 */
 pte_t * Translate(pde_t *pgdir, void *va) {
     // Get page directory, page table, and offset indices using the virtual address
+    int offset = get_offset(va);
+    if (USE_TLB) {
+        void* pa_c = check_in_tlb(va);
+        if (pa_c != NULL) {
+            return pa_c + offset;
+        }
+    }
+
     int pgdir_index = get_outer_dex(va);
     int pgtbl_index = get_inner_dex(va);
-    int offset = get_offset(va);
+    
     // Return NULL if page table doesn't exist
     if (pgdir[pgdir_index] == NULL) {
         return NULL;
@@ -134,6 +142,9 @@ pte_t * Translate(pde_t *pgdir, void *va) {
     }
     // Return the physical address
     void* pa = pgdir[pgdir_index][pgtbl_index];
+    if (USE_TLB) {
+        put_in_tlb(va, pa);
+    }
     return pa + offset;
 }
 
@@ -306,17 +317,7 @@ void PutVal(void *va, void *val, int size) {
        than one page. Therefore, you may have to find multiple pages using Translate()
        function.*/
     pte_t pa;
-    if (USE_TLB) {
-        pa = check_in_tlb(va);
-        if (pa == NULL) {
-            pa = Translate(page_dir, va);
-            put_in_tlb(va, pa);
-        } 
-    }
-    else {
-        
-        pa = Translate(page_dir, va);
-    }
+    pa = Translate(page_dir, va);
 
     unsigned int offset = get_offset(va);
 
@@ -338,15 +339,7 @@ void PutVal(void *va, void *val, int size) {
             size_to_copy = PGSIZE;
         }
         size_left -= size_to_copy;
-        if (USE_TLB) {
-            pa = check_in_tlb(va);
-            if (pa == NULL) {
-                pa = Translate(page_dir, va);
-                put_in_tlb(va, pa);
-            }
-        } else {
-            pa = Translate(page_dir, va);
-        }
+        pa = Translate(page_dir, va);
 
         memcpy(pa, val, size_to_copy);
         va += PGSIZE;
@@ -365,21 +358,17 @@ void GetVal(void *va, void *val, int size) {
     "val" address. Assume you can access "val" directly by derefencing them.
     If you are implementing TLB,  always check first the presence of translation
     in TLB before proceeding forward */
+    pte_t* pa = Translate(page_dir, va);
 
-    //int num_pages = (int) ceil(((float)num_bytes) / ((float) PGSIZE));
-    unsigned int outer_indx = get_outer_dex(va);
-    unsigned int inner_indx = get_inner_dex(va);
     unsigned int offset = get_offset(va);
 
-    pte_t pa = page_dir[outer_indx][inner_indx];
-
     if (offset + size <= PGSIZE) { // The easy case where we are contained to one page
-        memcpy(val, (void*)(pa + offset), size);
+        memcpy(val, (void*)(pa), size);
         pthread_mutex_unlock(&lock);
         return;
     }
 
-    memcpy(val, (void*)(pa + offset), PGSIZE - offset); // copy for initial chunk
+    memcpy(val, (void*)(pa), PGSIZE - offset); // copy for initial chunk
     unsigned int size_left = size - (PGSIZE - offset);
     va = va - offset + PGSIZE;
     val = val - offset + PGSIZE;
