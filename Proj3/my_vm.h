@@ -39,9 +39,8 @@ struct tlb {
     unsigned short virtual_page_number;
     // a phys_bitmap index
     unsigned short physical_page_number;
-    // Assume each bucket to be 4 bytes (???)
-    struct tlb* next;
-    struct tlb* prev;
+    // pointers to the next and previous entries
+    struct tlb *next, *prev;
 };
 struct tlb tlb_store;
 
