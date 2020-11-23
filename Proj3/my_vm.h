@@ -39,6 +39,8 @@ struct tlb {
     // a phys_bitmap index
     int physical_page_number;
     // Assume each bucket to be 4 bytes (???)
+    struct tcb* next;
+    struct tcb* prev;
 };
 struct tlb tlb_store;
 
@@ -58,5 +60,9 @@ unsigned int get_offset(void * va);
 unsigned int get_inner_dex(void * va);
 unsigned int get_outer_dex(void * va);
 void init_bitmaps();
+/* QUEUE FUNCTIONS */
+void add_to_front(struct tlb* new_entry);
+struct tlb* pop_from_back();
+void* find_page(void* va);
 
 #endif
