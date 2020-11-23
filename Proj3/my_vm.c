@@ -68,8 +68,8 @@ put_in_tlb(void *va, void *pa)
     // Create a new TLB entry.
     struct tlb *new_entry = NULL;
     new_entry->valid = 1;
-    new_entry->virtual_page_number = (unsigned short)va / PGSIZE;
-    new_entry->physical_page_number = ((unsigned short)pa - (unsigned short)phys_mem) / PGSIZE;
+    new_entry->virtual_page_number = (unsigned short)((unsigned int)va / PGSIZE);
+    new_entry->physical_page_number = (unsigned short)((pa - phys_mem) / PGSIZE);
     // Add the new entry to the front of the TLB.
     add_to_front(new_entry);
 }
