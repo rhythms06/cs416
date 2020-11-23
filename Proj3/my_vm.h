@@ -42,13 +42,12 @@ struct tlb {
     // pointers to the next and previous entries
     struct tlb *next, *prev;
 };
-struct tlb tlb_store;
 
 
 void SetPhysicalMem();
 pte_t* Translate(pde_t *pgdir, void *va);
 int PageMap(pde_t *pgdir, void *va, void* pa);
-bool check_in_tlb(void *va);
+pte_t* check_in_tlb(void *va);
 void put_in_tlb(void *va, void *pa);
 void *myalloc(unsigned int num_bytes);
 int myfree(void *va, int size);
@@ -63,6 +62,5 @@ void init_bitmaps();
 /* QUEUE FUNCTIONS */
 void add_to_front(struct tlb* new_tlb);
 struct tlb* pop_from_back();
-void* find_page(void* va);
 
 #endif
