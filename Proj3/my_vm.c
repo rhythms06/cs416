@@ -62,9 +62,16 @@ add_TLB(void *va, void *pa)
  */
 pte_t *
 check_TLB(void *va) {
-
+    unsigned int page_num = (unsigned int) va / PGSIZE;
+    unsigned int offset = get_offset(va);
     /* Part 2: TLB lookup code here */
-    // SHOULD ADD OFFSET TO PA!
+    struct tlb* ptr = cache_front;
+    while (ptr != NULL) {
+        if (ptr->virtual_page_number == page_num) {
+            return (void*) ((ptr->physical_page_number * PGSIZE) + offset);
+        }
+    }
+    
     return NULL;
 }
 
