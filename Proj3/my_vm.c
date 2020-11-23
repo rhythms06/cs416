@@ -160,10 +160,11 @@ void *get_next_avail(int num_pages) {
     //Use virtual address bitmap to find the next free page
     unsigned int start_ptr, end_ptr; // when these pointers are at the start and end of a free block of contig pages
     // Then will be done with the algorithm
-    end_ptr = num_pages; 
-    start_ptr = 0;
+   
+    start_ptr = 1;
+    end_ptr = num_pages + start_ptr; 
     bool found_block = false; // Assume we have not found a free block yet
-    for (start_ptr = 0; start_ptr < MAX_MEMSIZE / PGSIZE; ) {
+    for (start_ptr = 1; start_ptr < MAX_MEMSIZE / PGSIZE; ) {
         int i;
         for(i = start_ptr; i < end_ptr && i < MAX_MEMSIZE; i++) {
 
