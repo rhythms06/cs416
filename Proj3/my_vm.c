@@ -62,7 +62,7 @@ int
 add_TLB(void *va, void *pa)
 {
     // If the TLB is full, then evict its oldest entry.
-    if (cache_size > TLB_SIZE) {
+    if (cache_size >= TLB_SIZE) {
         pop_from_back();
     }
     // Add a new TLB entry.
