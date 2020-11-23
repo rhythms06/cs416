@@ -66,7 +66,7 @@ put_in_tlb(void *va, void *pa)
         pop_from_back();
     }
     // Create a new TLB entry.
-    struct tlb *new_entry = NULL;
+    struct tlb *new_entry = (struct tlb*) malloc(sizeof(struct tlb));
     new_entry->valid = 1;
     new_entry->virtual_page_number = (unsigned short)((unsigned int)va / PGSIZE);
     new_entry->physical_page_number = (unsigned short)((pa - phys_mem) / PGSIZE);
@@ -89,8 +89,9 @@ check_in_tlb(void *va) {
     while (ptr != NULL) {
         if (ptr->virtual_page_number == page_num) {
             hit_num++;
-            return (void*) ((ptr->physical_page_number * PGSIZE) + offset);
+            return (void*) (((ptr->physical_page_number * PGSIZE) + phys_mem) + offset);
         }
+        ptr = ptr->next;
     }
     miss_num++;
     return NULL;
