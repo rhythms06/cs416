@@ -42,7 +42,6 @@ struct tlb {
     // pointers to the next and previous entries
     struct tlb *next, *prev;
 };
-struct tlb tlb_store;
 
 
 void SetPhysicalMem();
@@ -63,6 +62,5 @@ void init_bitmaps();
 /* QUEUE FUNCTIONS */
 void add_to_front(struct tlb* new_tlb);
 struct tlb* pop_from_back();
-void* find_page(void* va);
 
 #endif
