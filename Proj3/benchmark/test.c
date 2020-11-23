@@ -1,5 +1,6 @@
 
 #include "../my_vm.h"
+#include <time.h>
 
 #define SIZE 2
 
@@ -11,6 +12,9 @@
 // }
 
 int main() {
+    // Start recording runtime.
+    time_t start;
+    time(&start);
 
     printf("Allocating three arrays of 400 bytes\n");
     void *a = myalloc(100*4);
@@ -71,6 +75,12 @@ int main() {
         printf("free function works\n");
     else
         printf("free function does not work\n");
+
+    // Stop recording runtime.
+    time_t end;
+    time(&end);
+    double seconds = difftime(end, start);
+    printf("Total runtime: %.f seconds", seconds);
 
     return 0;
 }
