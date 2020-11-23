@@ -54,16 +54,24 @@ void SetPhysicalMem() {
 
 
 /*
- * Adds a virtual-page-to-physical-page address translation to the TLB.
+ * Adds a virtual-page-to-physical-page address translation to the TLB,
+ * and evicts the oldest TLB entry if necessary.
  * Returns 1 on success and -1 on failure.
  */
 int
 add_TLB(void *va, void *pa)
 {
-
-    /*Part 2 HINT: Add a virtual to physical page translation to the TLB */
-
-    return -1;
+    // If the TLB is full, then evict its oldest entry.
+    if (cache_size > TLB_SIZE) {
+        pop_from_back();
+    }
+    // Add a new TLB entry.
+    struct tlb *new_entry = NULL;
+    new_entry->valid = 1;
+    new_entry->virtual_page_number = (unsigned short)va / PGSIZE;
+    new_entry->physical_page_number = ((unsigned short)pa - (unsigned short)phys_mem) / PGSIZE;
+    add_to_front(new_entry);
+    return 1;
 }
 
 
