@@ -12,7 +12,7 @@
 //Add any important includes here which you may need
 
 #define PGSIZE 4096
-#define USE_TLB true
+#define USE_TLB false
 // Maximum size of your memory
 #define MAX_MEMSIZE 4ULL*1024*1024*1024 //4GB
 #define ADDRESS_BITS 32
@@ -35,11 +35,9 @@ struct tlb {
     // set to 1 if holding a valid translation, 0 if not.
     int valid;
     // a virt_bitmap index
-    int virtual_page_number;
+    unsigned short virtual_page_number;
     // a phys_bitmap index
-    int physical_page_number;
-    void* va;
-    void* pa;
+    unsigned short physical_page_number;
     // Assume each bucket to be 4 bytes (???)
     struct tlb* next;
     struct tlb* prev;

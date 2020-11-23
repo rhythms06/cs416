@@ -19,6 +19,10 @@ Function responsible for allocating and setting your physical memory
 void SetPhysicalMem() {
     // Initialize physical and virtual page bitmaps
     init_bitmaps();
+    cache = (struct tlb*) malloc(sizeof(struct tlb) * TLB_SIZE);
+    cache_front = NULL;
+    cache_back = NULL;
+    cache_size = 0;
     // Allocate physical memory using malloc
     phys_mem = malloc(MEMSIZE);
     // Calculate number of page directory, page table, and offset bits
@@ -61,7 +65,7 @@ pte_t *
 check_TLB(void *va) {
 
     /* Part 2: TLB lookup code here */
-
+    // SHOULD ADD OFFSET TO PA!
     return NULL;
 }
 
@@ -253,24 +257,29 @@ int myfree(void *va, int size) {
  * memory pages using virtual address (va)
 */
 void PutVal(void *va, void *val, int size) {
-
     /* HINT: Using the virtual address and Translate(), find the physical page. Copy
        the contents of "val" to a physical page. NOTE: The "size" value can be larger
        than one page. Therefore, you may have to find multiple pages using Translate()
        function.*/
-    //int num_pages = (int) ceil(((float)num_bytes) / ((float) PGSIZE));
-    unsigned int outer_indx = get_outer_dex(va);
-    unsigned int inner_indx = get_inner_dex(va);
+    pte_t pa;
+    if (USE_TLB) {
+        pa = check_TLB(va);
+    }
+    else {
+        
+        pa = Translate(page_dir, va);
+    }
+
     unsigned int offset = get_offset(va);
 
-    pte_t pa = page_dir[outer_indx][inner_indx];
+
 
     if (offset + size <= PGSIZE) { // The easy case where we are contained to one page
-        memcpy((void*)(pa + offset), val, size);
+        memcpy((void*)(pa), val, size);
         return;
     }
 
-    memcpy((void*)(pa + offset), val, PGSIZE - offset); // copy for initial chunk
+    memcpy((void*)(pa), val, PGSIZE - offset); // copy for initial chunk
     unsigned int size_left = size - (PGSIZE - offset);
     va = va - offset + PGSIZE;
     val = val - offset + PGSIZE;
@@ -280,7 +289,12 @@ void PutVal(void *va, void *val, int size) {
             size_to_copy = PGSIZE;
         }
         size_left -= size_to_copy;
-        pa = Translate(page_dir, va);
+        if (USE_TLB) {
+            pa = check_TLB(va);
+        } else {
+            pa = Translate(page_dir, va);
+        }
+
         memcpy(pa, val, size_to_copy);
         va += PGSIZE;
         val += PGSIZE;
