@@ -48,7 +48,7 @@ struct tlb tlb_store;
 void SetPhysicalMem();
 pte_t* Translate(pde_t *pgdir, void *va);
 int PageMap(pde_t *pgdir, void *va, void* pa);
-bool check_in_tlb(void *va);
+pte_t* check_in_tlb(void *va);
 void put_in_tlb(void *va, void *pa);
 void *myalloc(unsigned int num_bytes);
 int myfree(void *va, int size);

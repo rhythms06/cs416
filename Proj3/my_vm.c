@@ -53,25 +53,25 @@ void SetPhysicalMem() {
 }
 
 
+
 /*
  * Adds a virtual-page-to-physical-page address translation to the TLB,
  * and evicts the oldest TLB entry if necessary.
- * Returns 1 on success and -1 on failure.
  */
-int
-add_TLB(void *va, void *pa)
+void
+put_in_tlb(void *va, void *pa)
 {
     // If the TLB is full, then evict its oldest entry.
     if (cache_size >= TLB_SIZE) {
         pop_from_back();
     }
-    // Add a new TLB entry.
+    // Create a new TLB entry.
     struct tlb *new_entry = NULL;
     new_entry->valid = 1;
     new_entry->virtual_page_number = (unsigned short)va / PGSIZE;
     new_entry->physical_page_number = ((unsigned short)pa - (unsigned short)phys_mem) / PGSIZE;
+    // Add the new entry to the front of the TLB.
     add_to_front(new_entry);
-    return 1;
 }
 
 
@@ -81,7 +81,7 @@ add_TLB(void *va, void *pa)
  * Feel free to extend this function and change the return type.
  */
 pte_t *
-check_TLB(void *va) {
+check_in_tlb(void *va) {
     unsigned int page_num = (unsigned int) va / PGSIZE;
     unsigned int offset = get_offset(va);
     /* Part 2: TLB lookup code here */
@@ -300,10 +300,10 @@ void PutVal(void *va, void *val, int size) {
        function.*/
     pte_t pa;
     if (USE_TLB) {
-        pa = check_TLB(va);
+        pa = check_in_tlb(va);
         if (pa == NULL) {
             pa = Translate(page_dir, va);
-            add_TLB(va, pa);
+            put_in_tlb(va, pa);
         } 
     }
     else {
@@ -332,10 +332,10 @@ void PutVal(void *va, void *val, int size) {
         }
         size_left -= size_to_copy;
         if (USE_TLB) {
-            pa = check_TLB(va);
+            pa = check_in_tlb(va);
             if (pa == NULL) {
                 pa = Translate(page_dir, va);
-                add_TLB(va, pa);
+                put_in_tlb(va, pa);
             }
         } else {
             pa = Translate(page_dir, va);
