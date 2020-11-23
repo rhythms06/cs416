@@ -19,7 +19,6 @@ Function responsible for allocating and setting your physical memory
 void SetPhysicalMem() {
     // Initialize physical and virtual page bitmaps
     init_bitmaps();
-    cache = (struct tlb*) malloc(sizeof(struct tlb) * TLB_SIZE);
     cache_front = NULL;
     cache_back = NULL;
     cache_size = 0;
