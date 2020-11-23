@@ -80,10 +80,11 @@ check_TLB(void *va) {
     struct tlb* ptr = cache_front;
     while (ptr != NULL) {
         if (ptr->virtual_page_number == page_num) {
+            hit_num++;
             return (void*) ((ptr->physical_page_number * PGSIZE) + offset);
         }
     }
-    
+    miss_num++;
     return NULL;
 }
 
