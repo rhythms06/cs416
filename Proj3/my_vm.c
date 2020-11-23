@@ -7,6 +7,8 @@ pde_t* page_dir;
 struct tlb* cache_front;
 struct tlb* cache_back;
 int cache_size;
+int hit_num;
+int miss_num;
 
 int offset_bits, page_dir_bits, page_table_bits;
 int page_dir_size, page_table_size;
@@ -24,6 +26,8 @@ void SetPhysicalMem() {
     cache_front = NULL;
     cache_back = NULL;
     cache_size = 0;
+    hit_num = 0;
+    miss_num = 0;
 
     // Initialize Mutex
     if (pthread_mutex_init(&lock, NULL) != 0) { 
