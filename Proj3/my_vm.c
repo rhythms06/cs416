@@ -3,7 +3,11 @@
 void* phys_mem;
 bool first_call = true;
 pde_t* page_dir;
-struct tlb* translation_cache;
+
+struct tlb* cache_front;
+struct tlb* cache_back;
+int cache_size;
+
 int offset_bits, page_dir_bits, page_table_bits;
 int page_dir_size, page_table_size;
 bool* phys_bitmap;
@@ -380,4 +384,44 @@ void init_bitmaps() {
     // Set physical/virtual "failure indicators" to false
     phys_bitmap[0] = false;
     virt_bitmap[0] = false;
+}
+
+void initialize_tlb() {
+	cache_front = NULL;
+	cache_back = NULL;
+	cache_size = 0;
+}
+void add_to_front(struct tlb* new_tlb) {
+
+	new_tlb->next = cache_front;
+	new_tlb->prev = NULL;
+
+	cache_size++;
+
+	if (cache_front == NULL) { // if queue is empty
+		cache_front = new_tlb;
+		cache_back = new_tlb;
+		return;
+	}
+
+	cache_front->prev = new_tlb;
+	cache_front = new_tlb;
+
+	return;
+
+}
+
+struct tlb* pop_from_back() {
+    if (cache_back == NULL) { // Queue is empty
+		return NULL;
+	}
+	if (cache_back == cache_front) { // if only one in queue
+		cache_front = NULL;
+	} else { // if 2 or more in queue, we need to correct the value of next
+		cache_back->prev->next = NULL;
+	}
+	struct tlb* popped = cache_back;
+	cache_back = popped->prev;
+
+	return popped;
 }

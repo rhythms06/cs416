@@ -12,7 +12,7 @@
 //Add any important includes here which you may need
 
 #define PGSIZE 4096
-
+#define USE_TLB true
 // Maximum size of your memory
 #define MAX_MEMSIZE 4ULL*1024*1024*1024 //4GB
 #define ADDRESS_BITS 32
@@ -38,9 +38,11 @@ struct tlb {
     int virtual_page_number;
     // a phys_bitmap index
     int physical_page_number;
+    void* va;
+    void* pa;
     // Assume each bucket to be 4 bytes (???)
-    struct tcb* next;
-    struct tcb* prev;
+    struct tlb* next;
+    struct tlb* prev;
 };
 struct tlb tlb_store;
 
@@ -61,7 +63,7 @@ unsigned int get_inner_dex(void * va);
 unsigned int get_outer_dex(void * va);
 void init_bitmaps();
 /* QUEUE FUNCTIONS */
-void add_to_front(struct tlb* new_entry);
+void add_to_front(struct tlb* new_tlb);
 struct tlb* pop_from_back();
 void* find_page(void* va);
 
