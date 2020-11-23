@@ -270,6 +270,10 @@ void PutVal(void *va, void *val, int size) {
     pte_t pa;
     if (USE_TLB) {
         pa = check_TLB(va);
+        if (pa == NULL) {
+            pa = Translate(page_dir, va);
+            add_TLB(va, pa);
+        } 
     }
     else {
         
@@ -297,6 +301,10 @@ void PutVal(void *va, void *val, int size) {
         size_left -= size_to_copy;
         if (USE_TLB) {
             pa = check_TLB(va);
+            if (pa == NULL) {
+                pa = Translate(page_dir, va);
+                add_TLB(va, pa);
+            }
         } else {
             pa = Translate(page_dir, va);
         }
