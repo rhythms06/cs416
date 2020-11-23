@@ -13,8 +13,7 @@
 
 int main() {
     // Start recording runtime.
-    time_t start;
-    time(&start);
+    clock_t start = clock();
 
     printf("Allocating three arrays of 400 bytes\n");
     void *a = myalloc(100*4);
@@ -77,10 +76,9 @@ int main() {
         printf("free function does not work\n");
 
     // Stop recording runtime.
-    time_t end;
-    time(&end);
-    double seconds = difftime(end, start);
-    printf("Total runtime: %.f seconds", seconds);
+    clock_t end = clock();
+    double runtime = (double)(end - start) / CLOCKS_PER_SEC;
+    printf("Total runtime: %.f seconds\n", runtime);
 
     return 0;
 }
