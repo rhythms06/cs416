@@ -12,7 +12,7 @@
 
 //Add any important includes here which you may need
 
-#define PGSIZE 4096
+#define PGSIZE 256
 #define USE_TLB true
 // Maximum size of your memory
 #define MAX_MEMSIZE 4ULL*1024*1024*1024 //4GB

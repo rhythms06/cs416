@@ -179,14 +179,14 @@ PageMap(pde_t *pgdir, void *va, void *pa)
 */
 void *get_next_avail(int num_pages) {
     //Use virtual address bitmap to find the next free page
-    unsigned int start_ptr, end_ptr; // when these pointers are at the start and end of a free block of contig pages
+    unsigned long long start_ptr, end_ptr; // when these pointers are at the start and end of a free block of contig pages
     // Then will be done with the algorithm
    
     start_ptr = 1;
     end_ptr = num_pages + start_ptr; 
     bool found_block = false; // Assume we have not found a free block yet
-    for (start_ptr = 1; start_ptr < MAX_MEMSIZE / PGSIZE; ) {
-        int i;
+    for (start_ptr = 1; start_ptr < MAX_MEMSIZE / (unsigned long long)PGSIZE; ) {
+        unsigned long long i;
         for(i = start_ptr; i < end_ptr && i < MAX_MEMSIZE; i++) {
 
             if (virt_bitmap[i] == true) { // This block is not contiguous since there is a page in use
@@ -436,7 +436,7 @@ void init_bitmaps() {
     // Initialize bitmap of (MEMSIZE / PGSIZE) physical pages
     phys_bitmap = (bool*) calloc(MEMSIZE / PGSIZE, sizeof(bool));
     // Initialize bitmap of (MAX_MEMSIZE / PGSIZE) virtual pages
-    virt_bitmap = (bool*) calloc(MAX_MEMSIZE / PGSIZE, sizeof(bool));
+    virt_bitmap = (bool*) calloc(MAX_MEMSIZE / (unsigned long long) PGSIZE, sizeof(bool));
     // Set physical/virtual "failure indicators" to false
     phys_bitmap[0] = false;
     virt_bitmap[0] = false;
