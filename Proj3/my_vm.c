@@ -106,13 +106,8 @@ void
 print_TLB_missrate()
 {
     double miss_rate = (float) miss_num / (float) (miss_num + hit_num);
-
-    /*Part 2 Code here to calculate and print the TLB miss rate*/
-
-
-
-
-    fprintf(stderr, "TLB miss rate %lf \n", miss_rate);
+    miss_rate *= 100;
+    fprintf(stderr, "TLB miss rate: %.2lf%%\n", miss_rate);
 }
 
 
