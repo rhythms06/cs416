@@ -126,7 +126,7 @@ pte_t * Translate(pde_t *pgdir, void *va) {
     if (USE_TLB) {
         void* pa_c = check_in_tlb(va);
         if (pa_c != NULL) {
-            return pa_c + offset;
+            return pa_c ;
         }
     }
 
@@ -452,7 +452,10 @@ void add_to_front(struct tlb* new_tlb) {
 	new_tlb->next = cache_front;
 	new_tlb->prev = NULL;
 
-	cache_size++;
+    if (cache_size < TLB_SIZE) {
+        cache_size++;
+    }
+	
 
 	if (cache_front == NULL) { // if queue is empty
 		cache_front = new_tlb;
