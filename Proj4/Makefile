@@ -3,11 +3,12 @@ CFLAGS = -g -Wall
 DEPS = Shell.h
 OBJ = Shell.o
 
-%.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
-
 Shell: $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS)
+	$(CC) $^ -o $@ $(CFLAGS)
 
+%.o: Shell.c $(DEPS)
+	$(CC) -c $< -o $@ $(CFLAGS)
+
+.PHONY: clean
 clean:
 	rm -f *.o
