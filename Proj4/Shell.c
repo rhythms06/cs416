@@ -5,6 +5,8 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <stdbool.h>
 #include <ctype.h>
 /* A custom shell.
@@ -21,6 +23,15 @@
 
 void handle_sigint(int signal) {
     printf("\n");
+}
+
+int input_length(char **input)
+{
+	int size = 0;
+
+	while(input[size] != NULL) 
+		size++;
+	return size;
 }
 
 // i took this code from online so we might want to make subtle changes to it
@@ -70,58 +81,61 @@ void exec_comm(char** command) {
     }
 } 
 
-void exec_pipe(char** left, char** right) {
-    // 0 is read end, 1 is write end 
-    int pipefd[2];  
-    pid_t p1, p2; 
-  
-    if (pipe(pipefd) < 0) { 
-        printf("\nPipe could not be initialized"); 
-        return; 
-    } 
-    p1 = fork(); 
-    if (p1 < 0) { 
-        printf("\nCould not fork"); 
-        return; 
-    } 
-  
-    if (p1 == 0) { 
-        // Child 1 executing.. 
-        // It only needs to write at the write end 
-        close(pipefd[0]); 
-        dup2(pipefd[1], STDOUT_FILENO); 
-        close(pipefd[1]); 
-  
-        if (execvp(left[0], left) < 0) { 
-            printf("\nCould not execute command 1.."); 
-            exit(0); 
-        } 
-    } else { 
-        // Parent executing 
-        p2 = fork(); 
-  
-        if (p2 < 0) { 
-            printf("\nCould not fork"); 
-            return; 
-        } 
-  
-        // Child 2 executing.. 
-        // It only needs to read at the read end 
-        if (p2 == 0) { 
-            close(pipefd[1]); 
-            dup2(pipefd[0], STDIN_FILENO); 
-            close(pipefd[0]); 
-            if (execvp(right[0], right) < 0) { 
-                printf("\nCould not execute command 2.."); 
-                exit(0); 
-            } 
-        } else { 
-            // parent executing, waiting for two children 
-            close(pipefd[1]);
-            wait(NULL); 
-            wait(NULL); 
-        } 
-    } 
+
+int dash_pipe(char **args)
+{
+	/*saving current stdin and stdout for restoring*/
+	int tempin=dup(0);			
+	int tempout=dup(1);			
+	int j=0, i=0, flag=0;
+	int fdin = 0, fdout;
+
+
+	if(!fdin) // TRY DELETING THIS AND SEEING IF IT STILL WORKS!!
+		fdin=dup(tempin); // BC WTF IS THIS SHIT!! OK WE NEED THIS LINE!!!
+	int pid;
+	for(i=0; i<input_length(args); i++)
+	{
+        char** rargs = NULL;
+		rargs = tokenize_input(args[i], " ", rargs);
+		dup2(fdin, 0);
+		close(fdin);
+		if(i == input_length(args)-3 && strcmp(args[i+1], ">") == 0)
+		{	
+			if((fdout = open(args[i+1], O_WRONLY)))
+				i++;
+		}
+		else if(i == input_length(args)-1)
+			fdout = dup(tempout);
+		else
+		{
+			int fd[2];
+			pipe(fd);
+			fdout = fd[1];
+			fdin = fd[0];
+		}	
+
+		dup2(fdout, 1);
+		close(fdout);
+		
+		
+		pid = fork();
+		if(pid == 0)
+		{
+			execvp(rargs[0], rargs);
+			perror("error forking\n");
+			exit(EXIT_FAILURE);
+		}
+
+		wait(NULL);
+	}
+
+	dup2(tempin, 0);
+	dup2(tempout, 1);
+	close(tempin);
+	close(tempout);
+
+	return 1;
 }
 
 int main() {
@@ -164,9 +178,10 @@ int main() {
                     printf("Piping...\n");
                     char** leftpipe = NULL;
                     char** rightpipe = NULL;
-                    leftpipe = tokenize_input(pipes[0], " ", leftpipe);
-                    rightpipe = tokenize_input(pipes[1], " ", rightpipe);
-                    exec_pipe(leftpipe, rightpipe);
+                    //leftpipe = tokenize_input(pipes[0], " ", leftpipe);
+                    //rightpipe = tokenize_input(pipes[1], " ", rightpipe);
+                    //exec_pipe(leftpipe, rightpipe);
+                    dash_pipe(pipes);
                     
                 } else {
                     // Try executing the command as a redirection.
