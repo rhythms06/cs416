@@ -77,6 +77,8 @@ int main() {
                         char* commandName = strtok(commands[j], " ");
                         if (strcmp(commandName, "cd") == 0) {
                             // TODO: Use chdir to execute cd command
+                            char* pathname = strtok(NULL, " ");
+                            chdir(pathname);
                         } else {
                             // TODO: Use execvp to execute miscellaneous command
                         }
