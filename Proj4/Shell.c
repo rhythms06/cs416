@@ -1,7 +1,9 @@
 #include "Shell.h"
 #include <zconf.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
+#include <sys/wait.h>
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
@@ -36,9 +38,48 @@ char *trim(char *input)
 	return input;
 }
 
-void exec_comm(char* command, char* input) {
-
+/** TEST - DELETE LATER!! **/
+void printtokens(char **tokens)
+{
+	int i = 0;
+	while(tokens[i] != NULL)
+	{
+		printf("%s\n", tokens[i]);
+		i++;
+	}
 }
+
+char** tokenize_input(char* input, char** tokens) {
+    char* current_token;
+    tokens = calloc(256, sizeof(char*));
+    int i = 0;
+    current_token = strtok(input, " ");
+    while(current_token != NULL) {
+        tokens[i] = current_token;
+        i++;
+        current_token = strtok(NULL, " ");
+    }
+
+    tokens[i] = NULL;
+    return tokens;
+}
+
+void exec_comm(char** command) {
+    // printf("Command: %s\n", command);
+    // printf("Input: %s</end>\n", input);
+    //TODO: Tokenize the user input!
+    int status;
+
+    // printtokens(tokens);
+    if (fork() == 0) { // If I am a child
+        if(execvp(command[0], command) < 0) {
+            printf("%s \033[0;31mis not a command\e[0m\n", command[0]);
+        }
+        exit(0);
+    } else { // I am the parent!!
+        wait(NULL);
+    }
+} 
 
 int main() {
 
@@ -94,14 +135,21 @@ int main() {
                         printf("%s\n", redirectRight);
                     } else {
                         // Try executing the command as either 'cd' or as an input of execvp.
-                        char* commandName = strtok(commands[j], " ");
+                        char** tokenized_com;
+                        tokenized_com = tokenize_input(commands[j], tokenized_com);
+
+                        char* commandName = tokenized_com[0];
                         if (strcmp(commandName, "cd") == 0) {
                             // TODO: Use chdir to execute cd command
-                            char* pathname = strtok(NULL, "");
+                            char* pathname = tokenized_com[1];
                             pathname = trim(pathname); // trims whitespace
                             chdir(pathname);
                         } else {
                             // TODO: Use execvp to execute miscellaneous command
+                            // char* inputs = strtok(NULL, "");
+                            // if (inputs != NULL)
+                            //     inputs = trim(inputs);
+                            exec_comm( tokenized_com );
                         }
                     }
                 }
