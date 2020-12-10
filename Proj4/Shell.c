@@ -39,17 +39,16 @@ char *trim(char *input)
 }
 
 
-char** tokenize_input(char* input, char** tokens) {
+char** tokenize_input(char* input, char* delimiters, char** tokens) {
     char* current_token;
     tokens = calloc(256, sizeof(char*));
     int i = 0;
-    current_token = strtok(input, " ");
+    current_token = strtok(input, delimiters);
     while(current_token != NULL) {
         tokens[i] = current_token;
         i++;
-        current_token = strtok(NULL, " ");
+        current_token = strtok(NULL, delimiters);
     }
-
     tokens[i] = NULL;
     return tokens;
 }
@@ -128,21 +127,15 @@ int main() {
                         printf("%s\n", redirectRight);
                     } else {
                         // Try executing the command as either 'cd' or as an input of execvp.
-                        char** tokenized_com;
-                        tokenized_com = tokenize_input(commands[j], tokenized_com);
-
-                        char* commandName = tokenized_com[0];
+                        char **tokens = NULL;
+                        tokens = tokenize_input(commands[i], " ", tokens);
+                        char* commandName = tokens[0];
                         if (strcmp(commandName, "cd") == 0) {
-                            // TODO: Use chdir to execute cd command
-                            char* pathname = tokenized_com[1];
+                            char* pathname = tokens[1];
                             pathname = trim(pathname); // trims whitespace
                             chdir(pathname);
                         } else {
-                            // TODO: Use execvp to execute miscellaneous command
-                            // char* inputs = strtok(NULL, "");
-                            // if (inputs != NULL)
-                            //     inputs = trim(inputs);
-                            exec_comm( tokenized_com );
+                            exec_comm(tokens);
                         }
                     }
                 }
