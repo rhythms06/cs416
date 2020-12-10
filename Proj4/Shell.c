@@ -1,6 +1,7 @@
 #include "Shell.h"
 #include <zconf.h>
 #include <stdio.h>
+#include <signal.h>
 #include <string.h>
 #include <stdbool.h>
 /* A custom shell.
@@ -12,7 +13,17 @@
  * cd
  * exit
 */
+
+#define SIGINT 2
+
+void handle_sigint(int signal) {
+    printf("Signal caught");
+}
+
 int main() {
+
+    signal(SIGINT, handle_sigint);
+
     // input holds the next line read from stdin
     char input[256] = "";
     // exit is true when the user executes "exit"
