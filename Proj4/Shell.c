@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <string.h>
 #include <stdbool.h>
+#include <ctype.h>
 /* A custom shell.
  * Acceptable commands include:
  * [command options]
@@ -18,6 +19,25 @@
 
 void handle_sigint(int signal) {
     printf("Signal caught");
+}
+
+// i took this code from online so we might want to make subtle changes to it
+char *trim(char *input)
+{
+	char *end;
+	while(isspace((unsigned char) *input)) {
+        input++;
+    }
+	if(*input == 0)
+		return input;
+	end = input + strlen(input) - 1;
+	while(end > input && isspace((unsigned char) *end)) end--;
+	*(end+1) = 0;
+	return input;
+}
+
+void exec_comm(char* command, char* input) {
+
 }
 
 int main() {
@@ -77,7 +97,8 @@ int main() {
                         char* commandName = strtok(commands[j], " ");
                         if (strcmp(commandName, "cd") == 0) {
                             // TODO: Use chdir to execute cd command
-                            char* pathname = strtok(NULL, " ");
+                            char* pathname = strtok(NULL, "");
+                            pathname = trim(pathname); // trims whitespace
                             chdir(pathname);
                         } else {
                             // TODO: Use execvp to execute miscellaneous command
