@@ -89,24 +89,18 @@ int main() {
         fgets(input, 256, stdin);
         // Tokenize input into commands[i][j] with { ; \n } delimiters.
         // Note: There can be at most i commands, and each command can be at most j characters long.
-        char commands[256][256];
-        char* command = strtok(input, ";\n");
-        if (command == NULL) {
+        char** commands = NULL;
+        commands = tokenize_input(input, ";\n", commands);
+        if (commands[0] == NULL) {
+            // The user entered nothing. Restart loop.
             continue;
         }
-        strcpy(commands[0], command);
-        command = strtok(NULL, ";\n");
-        int i = 0;
-        while (command != NULL) {
-            strcpy(commands[i + 1], command);
-            i++;
-            command = strtok(NULL, ";\n");
-        }
         // Iterate over commands
-        for (int j = 0; j <= i; j++) {
-            if (strcmp(commands[j], "exit") != 0) {
+        int i = 0;
+        while (commands[i] != NULL) {
+            if (strcmp(commands[i], "exit") != 0) {
                 // Try executing the command as a piping operation.
-                char* pipeLeft = strtok(commands[j], "|");
+                char* pipeLeft = strtok(commands[i], "|");
                 char* pipeRight = strtok(NULL, "|");
                 if (pipeRight != NULL) {
                     // TODO: Pipe pipeLeft into pipeRight
@@ -117,7 +111,7 @@ int main() {
                 } else {
                     // Try executing the command as a redirection.
                     // Note: strtok can't tell the difference between > and >>.
-                    char* redirectLeft = strtok(commands[j], ">");
+                    char* redirectLeft = strtok(commands[i], ">");
                     char* redirectRight = strtok(NULL, ">");
                     if (redirectRight != NULL) {
                         // TODO: Redirect the output of redirectLeft into redirectRight
@@ -139,6 +133,7 @@ int main() {
                         }
                     }
                 }
+                i++;
             } else {
                 // The current command is "exit."
                 exit = true;
