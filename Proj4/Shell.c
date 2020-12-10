@@ -103,22 +103,27 @@ int main() {
                 char* pipeLeft = strtok(commands[i], "|");
                 char* pipeRight = strtok(NULL, "|");
                 if (pipeRight != NULL) {
-                    // TODO: Pipe pipeLeft into pipeRight
-                    printf("You want to pipe the output of: \n");
-                    printf("%s\n", pipeLeft);
-                    printf("into the input of: \n");
-                    printf("%s\n", pipeRight);
+                    char** pipes = NULL;
+                    pipes = tokenize_input(commands[i], "|", pipes);
+                    // TODO: Pipe pipes.
+                    printf("Piping...\n");
                 } else {
                     // Try executing the command as a redirection.
                     // Note: strtok can't tell the difference between > and >>.
                     char* redirectLeft = strtok(commands[i], ">");
                     char* redirectRight = strtok(NULL, ">");
                     if (redirectRight != NULL) {
-                        // TODO: Redirect the output of redirectLeft into redirectRight
-                        printf("You want to redirect the output of: \n");
-                        printf("%s\n", redirectLeft);
-                        printf("into the file: \n");
-                        printf("%s\n", redirectRight);
+                        if (commands[i][strlen(redirectLeft) + 1] == '>') {
+                            char** appends = NULL;
+                            appends = tokenize_input(commands[i], ">", appends);
+                            // TODO: Append appends.
+                            printf("Appending...\n");
+                        } else {
+                            char** writes = NULL;
+                            writes = tokenize_input(commands[i], ">", writes);
+                            // TODO: Write writes.
+                            printf("Writing...\n");
+                        }
                     } else {
                         // Try executing the command as either 'cd' or as an input of execvp.
                         char **tokens = NULL;
