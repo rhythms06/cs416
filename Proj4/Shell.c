@@ -20,7 +20,7 @@
 #define SIGINT 2
 
 void handle_sigint(int signal) {
-    printf("Signal caught");
+    printf("\n");
 }
 
 // i took this code from online so we might want to make subtle changes to it
@@ -38,16 +38,6 @@ char *trim(char *input)
 	return input;
 }
 
-/** TEST - DELETE LATER!! **/
-void printtokens(char **tokens)
-{
-	int i = 0;
-	while(tokens[i] != NULL)
-	{
-		printf("%s\n", tokens[i]);
-		i++;
-	}
-}
 
 char** tokenize_input(char* input, char** tokens) {
     char* current_token;
