@@ -34,7 +34,7 @@ int main() {
         // Note: A default directory is printed if the current pathname is more than i characters long.
         char cwd[256] = "Current/Pathname/Is/Too/Long";
         getcwd(cwd, 256);
-        printf("%s $ ", cwd);
+        printf("\033[0;36m%s \033[0;33m$ \e[0m", cwd);
         // Retrieve input.
         fgets(input, 256, stdin);
         // Tokenize input into commands[i][j] with { ; \n } delimiters.
