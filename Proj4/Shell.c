@@ -87,42 +87,44 @@ int dash_pipe(char **args)
 	/*saving current stdin and stdout for restoring*/
 	int tempin=dup(0);			
 	int tempout=dup(1);			
-	int j=0, i=0, flag=0;
-	int fdin = 0, fdout;
+	
+	int input_file_descriptor = 0;
+    int output_file_descriptor;
 
 
-	if(!fdin) // TRY DELETING THIS AND SEEING IF IT STILL WORKS!!
-		fdin=dup(tempin); // BC WTF IS THIS SHIT!! OK WE NEED THIS LINE!!!
+	if(!input_file_descriptor) // TRY DELETING THIS AND SEEING IF IT STILL WORKS!!
+		input_file_descriptor=dup(tempin); // BC WTF IS THIS SHIT!! OK WE NEED THIS LINE!!!
 	int pid;
-	for(i=0; i<input_length(args); i++)
+    int i = 0;
+	for(i = 0; i<input_length(args); i++)
 	{
-        char** rargs = NULL;
-		rargs = tokenize_input(args[i], " ", rargs);
-		dup2(fdin, 0);
-		close(fdin);
-		if(i == input_length(args)-3 && strcmp(args[i+1], ">") == 0)
+        char** tokens = NULL;
+		tokens = tokenize_input(args[i], " ", tokens); // 
+		dup2(input_file_descriptor, 0);
+		close(input_file_descriptor);
+		if(strcmp(args[i+1], ">") == 0)
 		{	
-			if((fdout = open(args[i+1], O_WRONLY)))
+			if((output_file_descriptor = open(args[i+1], O_WRONLY)))
 				i++;
 		}
 		else if(i == input_length(args)-1)
-			fdout = dup(tempout);
+			output_file_descriptor = dup(tempout);
 		else
 		{
-			int fd[2];
-			pipe(fd);
-			fdout = fd[1];
-			fdin = fd[0];
+			int file_descriptors[2];
+			pipe(file_descriptors);
+			output_file_descriptor = file_descriptors[1];
+			input_file_descriptor = file_descriptors[0];
 		}	
 
-		dup2(fdout, 1);
-		close(fdout);
+		dup2(output_file_descriptor, 1);
+		close(output_file_descriptor);
 		
 		
 		pid = fork();
 		if(pid == 0)
 		{
-			execvp(rargs[0], rargs);
+			execvp(tokens[0], tokens);
 			perror("error forking\n");
 			exit(EXIT_FAILURE);
 		}
