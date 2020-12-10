@@ -70,6 +70,60 @@ void exec_comm(char** command) {
     }
 } 
 
+void exec_pipe(char** left, char** right) {
+    // 0 is read end, 1 is write end 
+    int pipefd[2];  
+    pid_t p1, p2; 
+  
+    if (pipe(pipefd) < 0) { 
+        printf("\nPipe could not be initialized"); 
+        return; 
+    } 
+    p1 = fork(); 
+    if (p1 < 0) { 
+        printf("\nCould not fork"); 
+        return; 
+    } 
+  
+    if (p1 == 0) { 
+        // Child 1 executing.. 
+        // It only needs to write at the write end 
+        close(pipefd[0]); 
+        dup2(pipefd[1], STDOUT_FILENO); 
+        close(pipefd[1]); 
+  
+        if (execvp(left[0], left) < 0) { 
+            printf("\nCould not execute command 1.."); 
+            exit(0); 
+        } 
+    } else { 
+        // Parent executing 
+        p2 = fork(); 
+  
+        if (p2 < 0) { 
+            printf("\nCould not fork"); 
+            return; 
+        } 
+  
+        // Child 2 executing.. 
+        // It only needs to read at the read end 
+        if (p2 == 0) { 
+            close(pipefd[1]); 
+            dup2(pipefd[0], STDIN_FILENO); 
+            close(pipefd[0]); 
+            if (execvp(right[0], right) < 0) { 
+                printf("\nCould not execute command 2.."); 
+                exit(0); 
+            } 
+        } else { 
+            // parent executing, waiting for two children 
+            close(pipefd[1]);
+            wait(NULL); 
+            wait(NULL); 
+        } 
+    } 
+}
+
 int main() {
 
     signal(SIGINT, handle_sigint);
@@ -100,13 +154,20 @@ int main() {
         while (commands[i] != NULL) {
             if (strcmp(commands[i], "exit") != 0) {
                 // Try executing the command as a piping operation.
-                char* pipeLeft = strtok(commands[i], "|");
-                char* pipeRight = strtok(NULL, "|");
-                if (pipeRight != NULL) {
-                    char** pipes = NULL;
-                    pipes = tokenize_input(commands[i], "|", pipes);
+                // char* pipeLeft = strtok(commands[i], "|");
+                // char* pipeRight = strtok(NULL, "|");
+                char** pipes = NULL;
+                pipes = tokenize_input(commands[i], "|", pipes);
+                if (pipes[1] != NULL) {
+
                     // TODO: Pipe pipes.
                     printf("Piping...\n");
+                    char** leftpipe = NULL;
+                    char** rightpipe = NULL;
+                    leftpipe = tokenize_input(pipes[0], " ", leftpipe);
+                    rightpipe = tokenize_input(pipes[1], " ", rightpipe);
+                    exec_pipe(leftpipe, rightpipe);
+                    
                 } else {
                     // Try executing the command as a redirection.
                     // Note: strtok can't tell the difference between > and >>.
