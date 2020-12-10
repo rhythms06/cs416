@@ -5,8 +5,8 @@
 #include <stdbool.h>
 
 int main() {
-    // cmd holds the next line read from stdin
-    char cmd[256] = "";
+    // input holds the next line read from stdin
+    char input[256] = "";
     // exit is true when the user executes "exit"
     bool exit = false;
     // While the user hasn't hit "exit", execute their wishes!
@@ -15,17 +15,33 @@ int main() {
         char cwd[256] = "Current/Pathname/Is/Too/Long";
         getcwd(cwd, 256);
         printf("%s $ ", cwd);
-        // Retrieve and tokenize cmd
-        fgets(cmd, 256, stdin);
-        char* token = strtok(strtok(cmd, "\n"), " ");
-        if (strcmp(token, "exit") != 0) {
-            while (token != NULL) {
-                printf("You entered: %s", token);
-                token = strtok(NULL, " ");
-                printf("\n");
+        // Retrieve input
+        fgets(input, 256, stdin);
+        /*
+         * commands = strtok \n and ;
+         * for token in commands:
+         *  if token is pipe { pipes... }
+         *  else if token is redirection { dup2... }
+         *  else execvp( strtok " " )
+         */
+        char commands[256][256];
+        char* command = strtok(input, ";\n");
+        strcpy(commands[0], command);
+        command = strtok(NULL, ";\n");
+        int i = 0;
+        while (command != NULL) {
+            strcpy(commands[i + 1], command);
+            i++;
+            command = strtok(NULL, ";\n");
+        }
+        // Iterate through the inputted commands
+        for (int j = 0; j <= i; j++) {
+            if (strcmp(commands[j], "exit") != 0) {
+                printf("TODO: Execute \"%s\"\n", commands[j]);
+            } else {
+                exit = true;
+                break;
             }
-        } else {
-            exit = true;
         }
     }
     return 0;
