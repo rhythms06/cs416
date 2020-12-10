@@ -12,7 +12,7 @@ int main() {
     // While the user hasn't hit "exit", execute their wishes!
     while (exit == false) {
         // Print the current working directory
-        char cwd[256] = "CWD";
+        char cwd[256] = "Current/Pathname/Is/Too/Long";
         getcwd(cwd, 256);
         printf("%s $ ", cwd);
         // Retrieve and tokenize cmd
