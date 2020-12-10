@@ -41,7 +41,36 @@ int main() {
         // Iterate over commands
         for (int j = 0; j <= i; j++) {
             if (strcmp(commands[j], "exit") != 0) {
-                printf("TODO: Execute \"%s\"\n", commands[j]);
+                // Try executing the command as a piping operation.
+                char* pipeLeft = strtok(commands[j], "|");
+                char* pipeRight = strtok(NULL, "|");
+                if (pipeRight != NULL) {
+                    // TODO: Pipe pipeLeft into pipeRight
+                    printf("You want to pipe the output of: \n");
+                    printf("%s\n", pipeLeft);
+                    printf("into the input of: \n");
+                    printf("%s\n", pipeRight);
+                } else {
+                    // Try executing the command as a redirection.
+                    // Note: strtok can't tell the difference between > and >>.
+                    char* redirectLeft = strtok(commands[j], ">");
+                    char* redirectRight = strtok(NULL, ">");
+                    if (redirectRight != NULL) {
+                        // TODO: Redirect the output of redirectLeft into redirectRight
+                        printf("You want to redirect the output of: \n");
+                        printf("%s\n", redirectLeft);
+                        printf("into the file: \n");
+                        printf("%s\n", redirectRight);
+                    } else {
+                        // Try executing the command as either 'cd' or as an input of execvp.
+                        char* commandName = strtok(commands[j], " ");
+                        if (strcmp(commandName, "cd") == 0) {
+                            // TODO: Use chdir to execute cd command
+                        } else {
+                            // TODO: Use execvp to execute miscellaneous command
+                        }
+                    }
+                }
             } else {
                 // The current command is "exit."
                 exit = true;
