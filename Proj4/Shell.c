@@ -92,6 +92,9 @@ int main() {
         // Note: There can be at most i commands, and each command can be at most j characters long.
         char commands[256][256];
         char* command = strtok(input, ";\n");
+        if (command == NULL) {
+            continue;
+        }
         strcpy(commands[0], command);
         command = strtok(NULL, ";\n");
         int i = 0;
