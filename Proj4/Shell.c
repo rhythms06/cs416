@@ -131,8 +131,13 @@ int main() {
                         char* commandName = tokens[0];
                         if (strcmp(commandName, "cd") == 0) {
                             char* pathname = tokens[1];
-                            pathname = trim(pathname); // trims whitespace
-                            chdir(pathname);
+                            if (tokens[1] == NULL) {
+                                chdir("~");
+                            }
+                            if (tokens[1] != NULL) {
+                                pathname = trim(pathname); // trims whitespace
+                                chdir(pathname);
+                            }
                         } else {
                             exec_comm(tokens);
                         }
