@@ -118,12 +118,12 @@ int exec_pipe(char **commands) {
 		close(input_file_descriptor); // close it? idk
         int redir = find_redir(tokens);
 		if(i == input_length(commands) - 1) { // if we're at the end of the shit
-			output_file_descriptor = dup(curout); // we out
+			output_file_descriptor = dup(curout); // we out bc this is the last command so we are not piping anywhere
         }
 		else { // if we're not at the end 
 			int file_descriptors[2]; // make an array of file descriptors
-
-			pipe(file_descriptors); // pass in fds to array
+            //this is the pipe magic part it's kind of crazy
+			pipe(file_descriptors); // pass in fds to pipe
 			output_file_descriptor = file_descriptors[1]; // yup we piped
 			input_file_descriptor = file_descriptors[0]; // we're piping
 		}	
