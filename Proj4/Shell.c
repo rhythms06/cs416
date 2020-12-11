@@ -166,6 +166,32 @@ int exec_pipe(char **commands) {
 	return 1;
 }
 
+int exec_write(char** tokens) {
+    int fd = open(trim(tokens[1]), O_RDWR | O_CREAT);
+    int pid = fork();
+    if (pid == 0) {
+        dup2(fd, 1);
+        char** subTokens = NULL;
+        subTokens = tokenize_input(trim(tokens[0]), " ", subTokens);
+        exec_comm(subTokens);
+        exit (0);
+    }
+    return 0;
+}
+
+int exec_append(char** tokens) {
+    int fd = open(trim(tokens[1]), O_RDWR | O_CREAT | O_APPEND);
+    int pid = fork();
+    if (pid == 0) {
+        dup2(fd, 1);
+        char** subTokens = NULL;
+        subTokens = tokenize_input(trim(tokens[0]), " ", subTokens);
+        exec_comm(subTokens);
+        exit (0);
+    }
+    return 0;
+}
+
 int main() {
 
     signal(SIGINT, handle_sigint);
