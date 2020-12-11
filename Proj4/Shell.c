@@ -223,7 +223,7 @@ int main() {
                 }
                 i++;
             } else {
-                // The current command is "exit."
+                // The current command is "exit"
                 exit = true;
                 break;
             }
