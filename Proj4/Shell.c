@@ -49,14 +49,12 @@ int find_redir(char** tokens) {
     return 0;
 }
 
-// i took this code from online so we might want to make subtle changes to it
-char *trim(char *input)
-{
+char *trim(char *input) {
 	char *end;
 	while(isspace((unsigned char) *input)) {
         input++;
     }
-	if(*input == 0) {
+	if (*input == 0) {
 		return input;
     }
 	end = input + strlen(input) - 1;
@@ -86,7 +84,6 @@ void exec_comm(char** command) {
     // printf("Command: %s\n", command);
     // printf("Input: %s</end>\n", input);
     //TODO: Tokenize the user input!
-    int status;
 
     // printtokens(tokens);
     if (fork() == 0) { // If I am a child
@@ -101,8 +98,7 @@ void exec_comm(char** command) {
 
 
 int exec_pipe(char **commands) {
-	/*saving current stdin and stdout for restoring*/
-	int curin = dup(0);			
+	int curin = dup(0);	// Get current standard in and out
 	int curout = dup(1);			
 	
     const int STANDARD_IN = 0;
@@ -118,47 +114,35 @@ int exec_pipe(char **commands) {
 	for(i = 0; i < input_length(commands); i++) {
         char** tokens = NULL;
 		tokens = tokenize_input(commands[i], " ", tokens); // Split command args by spaces
-		dup2(input_file_descriptor, 0); // set to stdin
+		dup2(input_file_descriptor, STANDARD_IN); // set to stdin
 		close(input_file_descriptor); // close it? idk
         int redir = find_redir(tokens);
-		// if(i == input_length(commands) - 3 && strcmp(commands[i + 1], ">") == 0) {	// if the command ahead of us is >
-		// 	if((output_file_descriptor = open(commands[i + 1], O_WRONLY))) {// we write to this shit
-		// 		i++;
-        //     }
-		// }
-        // if (redir == 1) {
-        //     output_file_descriptor = open(commands[i + 1], O_WRONLY);
-        // 	// if() {// we write to this shit
-		// 	// 	i++;
-        //     // }
-		// }
-        // else if (redir == 2) {
-            
-        // }
+
 		if(i == input_length(commands) - 1) { // if we're at the end of the shit
 			output_file_descriptor = dup(curout); // we out
         }
-		else { // if we're not at the end and we're not appending
+		else { // if we're not at the end 
 			int file_descriptors[2]; // make an array of file descriptors
 
 			pipe(file_descriptors); // pass in fds to array
 			output_file_descriptor = file_descriptors[1]; // yup we piped
 			input_file_descriptor = file_descriptors[0]; // we're piping
 		}	
-		dup2(output_file_descriptor, STANDARD_OUT);
+		dup2(output_file_descriptor, STANDARD_OUT); // some dup2 magic, i think this is what directs the output
 
 
 		close(output_file_descriptor);
 		
-		int pid;
-		pid = fork();
-		if(pid == 0) {
+		// ezpz  forking and stuff
+		if(fork() == 0) {
 			execvp(tokens[0], tokens);
 			exit(EXIT_FAILURE);
-		}
-		wait(NULL);
+		} else {
+            wait(NULL);
+        }
+		
 	}
-	dup2(curin, STANDARD_IN);
+	dup2(curin, STANDARD_IN); // put this stuff back 
 	dup2(curout, STANDARD_OUT);
 	close(curin);
 	close(curout);
