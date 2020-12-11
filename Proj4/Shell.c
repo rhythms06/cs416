@@ -82,48 +82,47 @@ void exec_comm(char** command) {
 } 
 
 
-int dash_pipe(char **args)
-{
+int exec_pipe(char **commands) {
 	/*saving current stdin and stdout for restoring*/
 	int tempin=dup(0);			
 	int tempout=dup(1);			
 	
+    const int STANDARD_IN = 0;
+    const int STANDARD_OUT = 1;
+
 	int input_file_descriptor = 0;
     int output_file_descriptor;
+	if(!input_file_descriptor) { // set input fd
+		input_file_descriptor=dup(tempin);
+    }
 
-
-	if(!input_file_descriptor) // TRY DELETING THIS AND SEEING IF IT STILL WORKS!!
-		input_file_descriptor=dup(tempin); // BC WTF IS THIS SHIT!! OK WE NEED THIS LINE!!!
-	int pid;
     int i = 0;
-	for(i = 0; i<input_length(args); i++)
-	{
+	for(i = 0; i < input_length(commands); i++) {
         char** tokens = NULL;
-		tokens = tokenize_input(args[i], " ", tokens); // 
-		dup2(input_file_descriptor, 0);
-		close(input_file_descriptor);
-		if(strcmp(args[i+1], ">") == 0)
-		{	
-			if((output_file_descriptor = open(args[i+1], O_WRONLY)))
+		tokens = tokenize_input(commands[i], " ", tokens); // Split command args by spaces
+		dup2(input_file_descriptor, 0); // set to stdin
+		close(input_file_descriptor); // close it? idk
+
+		if(strcmp(commands[i + 1], ">") == 0) {	// if the command ahead of us is >
+			if((output_file_descriptor = open(commands[i + 1], O_WRONLY))) // we write to this shit
 				i++;
 		}
-		else if(i == input_length(args)-1)
-			output_file_descriptor = dup(tempout);
-		else
-		{
+		else if(i == input_length(commands) - 1) { // if we're at the end of the shit
+			output_file_descriptor = dup(tempout); // we out
+        }
+		else { // if we're not at the end and we're not appending
 			int file_descriptors[2];
 			pipe(file_descriptors);
 			output_file_descriptor = file_descriptors[1];
 			input_file_descriptor = file_descriptors[0];
 		}	
 
-		dup2(output_file_descriptor, 1);
+		dup2(output_file_descriptor, STANDARD_OUT);
 		close(output_file_descriptor);
 		
-		
+		int pid;
 		pid = fork();
-		if(pid == 0)
-		{
+		if(pid == 0) {
 			execvp(tokens[0], tokens);
 			perror("error forking\n");
 			exit(EXIT_FAILURE);
@@ -132,8 +131,8 @@ int dash_pipe(char **args)
 		wait(NULL);
 	}
 
-	dup2(tempin, 0);
-	dup2(tempout, 1);
+	dup2(tempin, STANDARD_IN);
+	dup2(tempout, STANDARD_OUT);
 	close(tempin);
 	close(tempout);
 
@@ -183,7 +182,7 @@ int main() {
                     //leftpipe = tokenize_input(pipes[0], " ", leftpipe);
                     //rightpipe = tokenize_input(pipes[1], " ", rightpipe);
                     //exec_pipe(leftpipe, rightpipe);
-                    dash_pipe(pipes);
+                    exec_pipe(pipes);
                     
                 } else {
                     // Try executing the command as a redirection.
