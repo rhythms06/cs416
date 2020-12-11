@@ -228,20 +228,13 @@ int main() {
                     exec_pipe(pipes);
                 } else {
                     // Try executing the command as a redirection.
-                    // Note: strtok can't tell the difference between > and >>.
-                    char* redirectLeft = strtok(commands[i], ">");
-                    char* redirectRight = strtok(NULL, ">");
-                    if (redirectRight != NULL) {
-                        if (commands[i][strlen(redirectLeft) + 1] == '>') {
-                            char** appends = NULL;
-                            appends = tokenize_input(commands[i], ">", appends);
-                            // TODO: Append appends.
-                            printf("Appending...\n");
+                    char** redirects = NULL;
+                    redirects = tokenize_input(commands[i], ">", redirects);
+                    if (redirects[1] != NULL) {
+                        if (commands[i][strlen(redirects[0]) + 1] == '>') {
+                            exec_append(redirects);
                         } else {
-                            char** writes = NULL;
-                            writes = tokenize_input(commands[i], ">", writes);
-                            // TODO: Write writes.
-                            printf("Writing...\n");
+                            exec_write(redirects);
                         }
                     } else {
                         // Try executing the command as either 'cd' or as an input of execvp.
