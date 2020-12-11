@@ -209,7 +209,8 @@ int main() {
                         if (strcmp(commandName, "cd") == 0) {
                             char* pathname = tokens[1];
                             if (tokens[1] == NULL) {
-                                chdir("~");
+                                // No pathname given. Navigate HOME.
+                                chdir(getenv("HOME"));
                             }
                             if (tokens[1] != NULL) {
                                 pathname = trim(pathname); // trims whitespace
