@@ -80,15 +80,10 @@ char** tokenize_input(char* input, char* delimiters, char** tokens) {
     return tokens;
 }
 
-void exec_comm(char** command) {
-    // printf("Command: %s\n", command);
-    // printf("Input: %s</end>\n", input);
-    //TODO: Tokenize the user input!
-
-    // printtokens(tokens);
+void exec_comm(char** tokens) {
     if (fork() == 0) { // If I am a child
-        if(execvp(command[0], command) < 0) {
-            printf("%s \033[0;31mis not a command\e[0m\n", command[0]);
+        if(execvp(tokens[0], tokens) < 0) {
+            printf("%s \033[0;31mis not a command\e[0m\n", tokens[0]);
         }
         exit(0);
     } else { // I am the parent!!
@@ -150,27 +145,31 @@ int exec_pipe(char **commands) {
 }
 
 int exec_write(char** tokens) {
-    int fd = open(trim(tokens[1]), O_RDWR | O_CREAT);
-    int pid = fork();
-    if (pid == 0) {
-        dup2(fd, 1);
-        char** subTokens = NULL;
-        subTokens = tokenize_input(trim(tokens[0]), " ", subTokens);
-        exec_comm(subTokens);
-        exit (0);
+    for (int i = 1; i < input_length(tokens); i++) {
+        int fd = open(trim(tokens[i]), O_RDWR | O_CREAT);
+        int pid = fork();
+        if (pid == 0) {
+            dup2(fd, 1);
+            char** subTokens = NULL;
+            subTokens = tokenize_input(trim(tokens[0]), " ", subTokens);
+            exec_comm(subTokens);
+            exit (0);
+        }
     }
     return 0;
 }
 
 int exec_append(char** tokens) {
-    int fd = open(trim(tokens[1]), O_RDWR | O_CREAT | O_APPEND);
-    int pid = fork();
-    if (pid == 0) {
-        dup2(fd, 1);
-        char** subTokens = NULL;
-        subTokens = tokenize_input(trim(tokens[0]), " ", subTokens);
-        exec_comm(subTokens);
-        exit (0);
+    for (int i = 1; i < input_length(tokens); i++) {
+        int fd = open(trim(tokens[i]), O_RDWR | O_CREAT | O_APPEND);
+        int pid = fork();
+        if (pid == 0) {
+            dup2(fd, 1);
+            char** subTokens = NULL;
+            subTokens = tokenize_input(trim(tokens[0]), " ", subTokens);
+            exec_comm(subTokens);
+            exit (0);
+        }
     }
     return 0;
 }
