@@ -34,6 +34,21 @@ int input_length(char **input)
 	return size;
 }
 
+int find_redir(char** tokens) {
+    int i = 0;
+
+    while (tokens[i] != NULL) {
+        if (strcmp(tokens[i], ">>") ) {
+            return 2;
+        } else if (strcmp(tokens[i], ">")) {
+            return 1;
+        }
+        i++;
+    }
+
+    return 0;
+}
+
 // i took this code from online so we might want to make subtle changes to it
 char *trim(char *input)
 {
@@ -41,11 +56,14 @@ char *trim(char *input)
 	while(isspace((unsigned char) *input)) {
         input++;
     }
-	if(*input == 0)
+	if(*input == 0) {
 		return input;
+    }
 	end = input + strlen(input) - 1;
-	while(end > input && isspace((unsigned char) *end)) end--;
-	*(end+1) = 0;
+	while(end > input && isspace((unsigned char) *end)) {
+        end--;
+    }
+	*(end + 1) = 0;
 	return input;
 }
 
@@ -84,8 +102,8 @@ void exec_comm(char** command) {
 
 int exec_pipe(char **commands) {
 	/*saving current stdin and stdout for restoring*/
-	int tempin=dup(0);			
-	int tempout=dup(1);			
+	int curin = dup(0);			
+	int curout = dup(1);			
 	
     const int STANDARD_IN = 0;
     const int STANDARD_OUT = 1;
@@ -93,7 +111,7 @@ int exec_pipe(char **commands) {
 	int input_file_descriptor = 0;
     int output_file_descriptor;
 	if(!input_file_descriptor) { // set input fd
-		input_file_descriptor=dup(tempin);
+		input_file_descriptor = dup(curin);
     }
 
     int i = 0;
@@ -102,39 +120,48 @@ int exec_pipe(char **commands) {
 		tokens = tokenize_input(commands[i], " ", tokens); // Split command args by spaces
 		dup2(input_file_descriptor, 0); // set to stdin
 		close(input_file_descriptor); // close it? idk
-
-		if(strcmp(commands[i + 1], ">") == 0) {	// if the command ahead of us is >
-			if((output_file_descriptor = open(commands[i + 1], O_WRONLY))) // we write to this shit
-				i++;
-		}
-		else if(i == input_length(commands) - 1) { // if we're at the end of the shit
-			output_file_descriptor = dup(tempout); // we out
+        int redir = find_redir(tokens);
+		// if(i == input_length(commands) - 3 && strcmp(commands[i + 1], ">") == 0) {	// if the command ahead of us is >
+		// 	if((output_file_descriptor = open(commands[i + 1], O_WRONLY))) {// we write to this shit
+		// 		i++;
+        //     }
+		// }
+        // if (redir == 1) {
+        //     output_file_descriptor = open(commands[i + 1], O_WRONLY);
+        // 	// if() {// we write to this shit
+		// 	// 	i++;
+        //     // }
+		// }
+        // else if (redir == 2) {
+            
+        // }
+		if(i == input_length(commands) - 1) { // if we're at the end of the shit
+			output_file_descriptor = dup(curout); // we out
         }
 		else { // if we're not at the end and we're not appending
-			int file_descriptors[2];
-			pipe(file_descriptors);
-			output_file_descriptor = file_descriptors[1];
-			input_file_descriptor = file_descriptors[0];
-		}	
+			int file_descriptors[2]; // make an array of file descriptors
 
+			pipe(file_descriptors); // pass in fds to array
+			output_file_descriptor = file_descriptors[1]; // yup we piped
+			input_file_descriptor = file_descriptors[0]; // we're piping
+		}	
 		dup2(output_file_descriptor, STANDARD_OUT);
+
+
 		close(output_file_descriptor);
 		
 		int pid;
 		pid = fork();
 		if(pid == 0) {
 			execvp(tokens[0], tokens);
-			perror("error forking\n");
 			exit(EXIT_FAILURE);
 		}
-
 		wait(NULL);
 	}
-
-	dup2(tempin, STANDARD_IN);
-	dup2(tempout, STANDARD_OUT);
-	close(tempin);
-	close(tempout);
+	dup2(curin, STANDARD_IN);
+	dup2(curout, STANDARD_OUT);
+	close(curin);
+	close(curout);
 
 	return 1;
 }
@@ -177,8 +204,7 @@ int main() {
 
                     // TODO: Pipe pipes.
                     printf("Piping...\n");
-                    char** leftpipe = NULL;
-                    char** rightpipe = NULL;
+
                     //leftpipe = tokenize_input(pipes[0], " ", leftpipe);
                     //rightpipe = tokenize_input(pipes[1], " ", rightpipe);
                     //exec_pipe(leftpipe, rightpipe);
