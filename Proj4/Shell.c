@@ -150,27 +150,31 @@ int exec_pipe(char **commands) {
 }
 
 int exec_write(char** tokens) {
-    int fd = open(trim(tokens[1]), O_RDWR | O_CREAT);
-    int pid = fork();
-    if (pid == 0) {
-        dup2(fd, 1);
-        char** subTokens = NULL;
-        subTokens = tokenize_input(trim(tokens[0]), " ", subTokens);
-        exec_comm(subTokens);
-        exit (0);
+    for (int i = 1; i < input_length(tokens); i++) {
+        int fd = open(trim(tokens[i]), O_RDWR | O_CREAT);
+        int pid = fork();
+        if (pid == 0) {
+            dup2(fd, 1);
+            char** subTokens = NULL;
+            subTokens = tokenize_input(trim(tokens[0]), " ", subTokens);
+            exec_comm(subTokens);
+            exit (0);
+        }
     }
     return 0;
 }
 
 int exec_append(char** tokens) {
-    int fd = open(trim(tokens[1]), O_RDWR | O_CREAT | O_APPEND);
-    int pid = fork();
-    if (pid == 0) {
-        dup2(fd, 1);
-        char** subTokens = NULL;
-        subTokens = tokenize_input(trim(tokens[0]), " ", subTokens);
-        exec_comm(subTokens);
-        exit (0);
+    for (int i = 1; i < input_length(tokens); i++) {
+        int fd = open(trim(tokens[i]), O_RDWR | O_CREAT | O_APPEND);
+        int pid = fork();
+        if (pid == 0) {
+            dup2(fd, 1);
+            char** subTokens = NULL;
+            subTokens = tokenize_input(trim(tokens[0]), " ", subTokens);
+            exec_comm(subTokens);
+            exit (0);
+        }
     }
     return 0;
 }
