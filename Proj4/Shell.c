@@ -102,8 +102,8 @@ void exec_comm(char** command) {
 
 int exec_pipe(char **commands) {
 	/*saving current stdin and stdout for restoring*/
-	int curin = dup(0);			
-	int curout = dup(1);			
+	int curin = dup(0);
+	int curout = dup(1);
 	
     const int STANDARD_IN = 0;
     const int STANDARD_OUT = 1;
@@ -133,7 +133,7 @@ int exec_pipe(char **commands) {
         //     // }
 		// }
         // else if (redir == 2) {
-            
+
         // }
 		if(i == input_length(commands) - 1) { // if we're at the end of the shit
 			output_file_descriptor = dup(curout); // we out
@@ -144,7 +144,7 @@ int exec_pipe(char **commands) {
 			pipe(file_descriptors); // pass in fds to array
 			output_file_descriptor = file_descriptors[1]; // yup we piped
 			input_file_descriptor = file_descriptors[0]; // we're piping
-		}	
+		}
 		dup2(output_file_descriptor, STANDARD_OUT);
 
 
@@ -196,20 +196,10 @@ int main() {
         while (commands[i] != NULL) {
             if (strcmp(commands[i], "exit") != 0) {
                 // Try executing the command as a piping operation.
-                // char* pipeLeft = strtok(commands[i], "|");
-                // char* pipeRight = strtok(NULL, "|");
                 char** pipes = NULL;
                 pipes = tokenize_input(commands[i], "|", pipes);
                 if (pipes[1] != NULL) {
-
-                    // TODO: Pipe pipes.
-                    printf("Piping...\n");
-
-                    //leftpipe = tokenize_input(pipes[0], " ", leftpipe);
-                    //rightpipe = tokenize_input(pipes[1], " ", rightpipe);
-                    //exec_pipe(leftpipe, rightpipe);
                     exec_pipe(pipes);
-                    
                 } else {
                     // Try executing the command as a redirection.
                     // Note: strtok can't tell the difference between > and >>.
