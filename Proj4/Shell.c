@@ -117,7 +117,6 @@ int exec_pipe(char **commands) {
 		dup2(input_file_descriptor, STANDARD_IN); // set to stdin
 		close(input_file_descriptor); // close it? idk
         int redir = find_redir(tokens);
-
 		if(i == input_length(commands) - 1) { // if we're at the end of the shit
 			output_file_descriptor = dup(curout); // we out
         }
@@ -150,6 +149,32 @@ int exec_pipe(char **commands) {
 	return 1;
 }
 
+int exec_write(char** tokens) {
+    int fd = open(trim(tokens[1]), O_RDWR | O_CREAT);
+    int pid = fork();
+    if (pid == 0) {
+        dup2(fd, 1);
+        char** subTokens = NULL;
+        subTokens = tokenize_input(trim(tokens[0]), " ", subTokens);
+        exec_comm(subTokens);
+        exit (0);
+    }
+    return 0;
+}
+
+int exec_append(char** tokens) {
+    int fd = open(trim(tokens[1]), O_RDWR | O_CREAT | O_APPEND);
+    int pid = fork();
+    if (pid == 0) {
+        dup2(fd, 1);
+        char** subTokens = NULL;
+        subTokens = tokenize_input(trim(tokens[0]), " ", subTokens);
+        exec_comm(subTokens);
+        exit (0);
+    }
+    return 0;
+}
+
 int main() {
 
     signal(SIGINT, handle_sigint);
@@ -180,36 +205,19 @@ int main() {
         while (commands[i] != NULL) {
             if (strcmp(commands[i], "exit") != 0) {
                 // Try executing the command as a piping operation.
-                // char* pipeLeft = strtok(commands[i], "|");
-                // char* pipeRight = strtok(NULL, "|");
                 char** pipes = NULL;
                 pipes = tokenize_input(commands[i], "|", pipes);
                 if (pipes[1] != NULL) {
-
-                    // TODO: Pipe pipes.
-                    printf("Piping...\n");
-
-                    //leftpipe = tokenize_input(pipes[0], " ", leftpipe);
-                    //rightpipe = tokenize_input(pipes[1], " ", rightpipe);
-                    //exec_pipe(leftpipe, rightpipe);
                     exec_pipe(pipes);
-                    
                 } else {
                     // Try executing the command as a redirection.
-                    // Note: strtok can't tell the difference between > and >>.
-                    char* redirectLeft = strtok(commands[i], ">");
-                    char* redirectRight = strtok(NULL, ">");
-                    if (redirectRight != NULL) {
-                        if (commands[i][strlen(redirectLeft) + 1] == '>') {
-                            char** appends = NULL;
-                            appends = tokenize_input(commands[i], ">", appends);
-                            // TODO: Append appends.
-                            printf("Appending...\n");
+                    char** redirects = NULL;
+                    redirects = tokenize_input(commands[i], ">", redirects);
+                    if (redirects[1] != NULL) {
+                        if (commands[i][strlen(redirects[0]) + 1] == '>') {
+                            exec_append(redirects);
                         } else {
-                            char** writes = NULL;
-                            writes = tokenize_input(commands[i], ">", writes);
-                            // TODO: Write writes.
-                            printf("Writing...\n");
+                            exec_write(redirects);
                         }
                     } else {
                         // Try executing the command as either 'cd' or as an input of execvp.
